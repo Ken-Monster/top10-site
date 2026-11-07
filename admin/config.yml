@@ -1,15 +1,19 @@
 # Decap CMS Configuration File
 
+
 # The backend option specifies how to access the content for your site
 backend:
-  name: git-gateway
-  branch: master # The branch to update (optional; defaults to master)
+  name: github
+  repo: Ken-Monster/top10-site
+  branch: main
+  base_url: https://top10.cc.cd
+
+locale: "zh_Hans"
 
 # Uncomment below to enable drafts https://www.decapcms.org/docs/add-to-your-site/#editorial-workflow
 # publish_mode: editorial_workflow
 
-# Uncomment below to enable a link to your published site in the header bar of Decap CMS
-# site_url: https://eleventy-netlify-boilerplate.netlify.app/
+site_url: https://top10.cc.cd
 
 media_folder: "static/img" # Media files will be stored in the repo under images/uploads
 
