@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>善护 · 首年全成本预算 · 交互仪表盘</title>
+<script>
+/* iOS 微信 WKWebView 兼容：内容默认可见；主脚本异常时兜底显示 */
+(function(){
+  var h=document.documentElement;
+  try{
+    if(/iP(hone|ad|od)/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))h.classList.add('ios');
+  }catch(err){}
+  window.__shanhuBoot=setTimeout(function(){
+    var es=document.querySelectorAll('.reveal'),i;
+    for(i=0;i<es.length;i++)es[i].classList.add('in');
+  },2600);
+})();
+</script>
+<style>
+:root{
+  /* 中性底色 */
+  --bg:#EEF2F7; --surface:#F7F9FC; --card:#FFFFFF; --border:#DFE7F0;
+  --text:#1B2B3D; --muted:#63758B; --faint:#94A4B6;
+  --grid:#E6EDF5; --soft:#EDF2F8; --row:#F8FAFD;
+  --shadow:0 2px 10px rgba(24,55,95,.05); --shadow-lg:0 12px 34px rgba(24,55,95,.14);
+  /* 语义色板：蓝=主数据 / 青=完成态 / 琥珀=待定·峰值·警示 */
+  --brand:#23518C; --brand-2:#4E7EB4; --brand-3:#7FA6CE;
+  --teal:#2C8986; --accent:#CE7833; --accent-ink:#A4551C;
+  --accent-soft:#FFF4E9; --accent-bd:#F0D9BF;
+  --on-brand:#FFFFFF;
+  /* 兼容别名 */
+  --primary:var(--brand); --warm:var(--accent-soft); --warmbd:var(--accent-bd);
+  --hero1:#173A69; --hero2:#23518C; --hero3:#3B7C9E;
+  --band1:rgba(35,81,140,.06); --band2:rgba(206,120,51,.075); --band3:rgba(44,137,134,.07);
+}
+html[data-theme="dark"]{
+  --bg:#0C1420; --surface:#111C2B; --card:#17263B; --border:#2A3B52;
+  --text:#E8EFF8; --muted:#A6B8CC; --faint:#7E93AB;
+  --grid:#2A3B52; --soft:#1E2F47; --row:#1A2B42;
+  --shadow:0 2px 14px rgba(0,0,0,.30); --shadow-lg:0 14px 38px rgba(0,0,0,.42);
+  --brand:#6FA0DC; --brand-2:#8CB9E6; --brand-3:#A9C9EC;
+  --teal:#5CBBB6; --accent:#E9A35C; --accent-ink:#F4BE86;
+  --accent-soft:#2C2318; --accent-bd:#4E3A26;
+  --on-brand:#0C1420;
+  --primary:var(--brand);
+  --hero1:#102A4C; --hero2:#1B4272; --hero3:#2B6584;
+  --band1:rgba(111,160,220,.09); --band2:rgba(233,163,92,.10); --band3:rgba(92,187,182,.10);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",Arial,sans-serif;-webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
+.page{width:1240px;max-width:100%;margin:0 auto;padding:24px 40px 40px;background:var(--surface);min-height:100vh;transition:background .35s}
+
+/* top toolbar */
+.toolbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;background:var(--surface);background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 4px;margin:-24px 0 20px}
+.tb-title{font-size:15px;font-weight:700;color:var(--primary);letter-spacing:.5px}
+.tb-live{margin-left:auto;font-size:14px;color:var(--muted)}
+.tb-live b{font-size:17px;color:var(--accent-ink);margin-left:8px;font-variant-numeric:tabular-nums}
+.btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;padding:7px 12px;font-size:14px;cursor:pointer;font-family:inherit;transition:transform .18s,box-shadow .18s,background .2s,border-color .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--primary)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.btn.active{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.btn-group{display:inline-flex;gap:0}
+.btn-group .btn{border-radius:0;margin-left:-1px}
+.btn-group .btn:first-child{border-radius:8px 0 0 8px;margin-left:0}
+.btn-group .btn:last-child{border-radius:0 8px 8px 0}
+
+/* hero */
+.hero{background:linear-gradient(118deg,var(--hero1),var(--hero2) 58%,var(--hero3));color:#fff;border-radius:18px;padding:30px 34px 26px;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;right:-60px;top:-100px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.07);animation:float 9s ease-in-out infinite}
+.hero:after{content:"";position:absolute;left:38%;bottom:-160px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.05);animation:float 12s ease-in-out infinite reverse}
+@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(-24px,22px)}}
+.hero>*{position:relative;z-index:2}
+.hero .eyebrow{font-size:14px;letter-spacing:3px;opacity:.8;margin-bottom:10px}
+.hero h1{margin:0 0 8px;font-size:36px;font-weight:700;letter-spacing:1px}
+.hero .sub{font-size:15.5px;opacity:.9;line-height:1.75;max-width:900px}
+.hero .period{display:inline-block;margin-top:14px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:20px;font-size:15px}
+.fade-up{animation:fadeUp .7s cubic-bezier(.22,.8,.3,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0 24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative;overflow:hidden}
+.kpi:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);border-color:var(--brand)}
+.kpi:after{content:"";position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--accent);transition:width .4s}
+.kpi:hover:after{width:100%}
+.kpi .k-label{font-size:14px;color:var(--muted);margin-bottom:8px}
+.kpi .k-value{font-size:28px;font-weight:700;color:var(--primary);line-height:1.15;font-variant-numeric:tabular-nums}
+.kpi .k-value small{font-size:15.5px;font-weight:600;margin-left:3px}
+.kpi .k-note{font-size:13px;color:var(--faint);margin-top:7px}
+.kpi.accent{background:var(--warm);border-color:var(--warmbd)}
+.kpi.accent .k-value{color:var(--accent-ink)}
+
+/* sections */
+.section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 24px;margin-bottom:18px;box-shadow:var(--shadow);transition:background .35s,border-color .35s}
+.reveal{opacity:0;transform:translateY(24px)}
+.reveal.in{opacity:1;transform:none;animation:fadeUp .65s cubic-bezier(.22,.8,.3,1) both}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.sec-num{font-size:14px;font-weight:700;color:var(--on-brand);background:var(--brand);border-radius:6px;padding:3px 8px;letter-spacing:1px}
+.sec-head h2{margin:0;font-size:20px;font-weight:700;color:var(--primary)}
+.sec-head .tag{margin-left:auto;font-size:14px;color:var(--faint)}
+.sec-desc{font-size:14.5px;color:var(--muted);line-height:1.75;margin:0 0 16px}
+.warn{display:inline-block;background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--warmbd);border-radius:6px;padding:3px 9px;font-size:13.5px;font-weight:600;margin-left:8px}
+
+/* bars + donut */
+.split{display:grid;grid-template-columns:1fr 250px;gap:24px;align-items:center}
+.bar-item{border-radius:10px;transition:background .2s}
+.bar-item:hover{background:var(--row)}
+.bar-row{display:flex;align-items:center;gap:12px;padding:8px 8px;cursor:pointer}
+.bar-label{width:120px;font-size:15px;font-weight:600;flex:none;white-space:nowrap}
+.bar-track{flex:1;height:22px;background:var(--soft);border-radius:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;min-width:4px;width:0;transition:width 1.1s cubic-bezier(.22,.8,.3,1);position:relative}
+.bar-fill:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);transform:translateX(-100%);animation:shine 2.6s ease-in-out infinite}
+@keyframes shine{0%{transform:translateX(-100%)}60%,100%{transform:translateX(200%)}}
+.bar-value{width:190px;text-align:right;font-size:15px;font-weight:700;flex:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar-value span{display:inline-block;min-width:52px;margin-left:8px;color:var(--muted);font-weight:600;font-size:14px}
+.bar-caret{font-size:15px;color:var(--faint);width:14px;flex:none;text-align:center;transition:transform .25s,color .25s}
+.bar-item:hover .bar-caret{color:var(--brand);transform:translate(2px,-2px)}
+.donut-wrap{text-align:center}
+.donut-wrap svg{width:210px;height:210px;transform:rotate(-90deg)}
+.donut-wrap .seg{transition:opacity .25s,stroke-width .25s;cursor:pointer}
+.donut-wrap .seg:hover{stroke-width:32;opacity:.85}
+.donut-center{font-size:13px;fill:var(--muted)}
+.donut-legend{font-size:13px;color:var(--muted);line-height:1.9;margin-top:6px}
+
+/* hr */
+.stack{display:flex;height:42px;border-radius:9px;overflow:hidden;margin:6px 0 14px}
+.stack div{width:0;display:flex;align-items:center;justify-content:center;color:var(--on-brand);font-size:14px;font-weight:700;white-space:nowrap;transition:width 1.1s cubic-bezier(.22,.8,.3,1),filter .2s;cursor:pointer}
+.stack div:hover{filter:brightness(1.12)}
+.stack div.dim{filter:saturate(.35) brightness(1.25)}
+.hr-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.hr-card{border:1px solid var(--border);border-radius:11px;padding:14px 15px;background:var(--row);cursor:pointer;transition:transform .22s,box-shadow .22s,border-color .22s}
+.hr-card:hover,.hr-card.hot{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--primary)}
+.hr-card .hc-top{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;margin-bottom:8px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.hr-card .hc-val{font-size:22px;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums}
+.hr-card .hc-val span{font-size:14px;color:var(--muted);font-weight:600;margin-left:6px}
+.hr-card .hc-note{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{background:var(--soft);padding:8px;color:var(--muted);font-weight:600;text-align:right;cursor:pointer;user-select:none;transition:background .2s}
+th:hover{background:var(--grid)}
+th:first-child,td:first-child{text-align:left}
+th.sorted{color:var(--primary)}
+td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--border);color:var(--text);font-variant-numeric:tabular-nums}
+tbody tr{transition:background .2s}
+tbody tr:hover{background:var(--row)}
+tbody tr:last-child td{border-bottom:none;font-weight:700;color:var(--primary);background:var(--row)}
+.mini-title{font-size:15px;font-weight:700;color:var(--primary);margin:16px 0 8px;display:flex;align-items:center;gap:10px}
+
+/* chart */
+.chart-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.legend{display:flex;gap:18px;font-size:14px;color:var(--muted);margin-left:auto;flex-wrap:wrap}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
+#chart{position:relative}
+#chart svg{width:100%;height:auto;display:block;overflow:visible}
+#chart .grid-line{stroke:var(--grid);stroke-width:1}
+#chart .axis-txt{fill:var(--faint);font-size:10px}
+#chart .month-txt{fill:var(--muted);font-size:11px}
+#chart .val-txt{fill:var(--text);font-size:10px;font-weight:700;paint-order:stroke;stroke:var(--card);stroke-width:2.5}
+#chart .bar{transform-box:fill-box;transform-origin:bottom;animation:grow .7s cubic-bezier(.22,.8,.3,1) both;cursor:pointer;transition:opacity .25s,filter .25s}
+@keyframes grow{from{transform:scaleY(.02);opacity:0}to{transform:scaleY(1);opacity:1}}
+#chart .bar.dim{opacity:.22;filter:saturate(.3)}
+#chart .bar:hover{filter:brightness(1.15)}
+#chart .hc-line{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-dasharray:5 4;stroke-dashoffset:1200;animation:draw 1.6s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+#chart .area{animation:fadeIn .9s ease both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+#chart .hit{cursor:pointer}
+.stage-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.stage{border:1px solid var(--border);border-left:4px solid var(--brand);border-radius:10px;padding:13px 15px;background:var(--row);cursor:pointer;transition:transform .22s,box-shadow .22s,opacity .22s}
+.stage:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.stage.sel{box-shadow:0 0 0 2px var(--primary) inset}
+.stage-grid.filtering .stage:not(.sel){opacity:.45}
+.stage .st-name{font-size:15px;font-weight:700}
+.stage .st-period{font-size:13.5px;color:var(--faint);margin:3px 0 9px}
+.stage .st-line{font-size:14px;color:var(--muted);line-height:1.75}
+.stage .st-line b{color:var(--primary)}
+
+/* timeline */
+.timeline{display:flex;gap:0;margin-top:8px}
+.tl-node{flex:1;text-align:center;position:relative;padding:0 6px;cursor:pointer}
+.tl-node:not(:last-child):after{content:"";position:absolute;top:28px;left:60%;width:80%;height:2px;background:var(--border)}
+.tl-circle{width:56px;height:56px;margin:0 auto 10px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:700;position:relative;z-index:2;transition:transform .3s,box-shadow .3s}
+.tl-node:hover .tl-circle{transform:scale(1.12);box-shadow:0 0 0 6px color-mix(in srgb,var(--brand) 22%,transparent)}
+.tl-node:nth-child(2) .tl-circle{background:var(--brand-2)}
+.tl-node:nth-child(3) .tl-circle{background:var(--accent)}
+.tl-node:nth-child(4) .tl-circle{background:var(--teal)}
+.tl-date{font-size:14px;font-weight:700;color:var(--primary)}
+.tl-desc{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:5px}
+
+/* two col + tools */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.und-list{display:flex;flex-direction:column;gap:8px}
+.und{display:flex;gap:10px;align-items:center;background:var(--warm);border:1px solid var(--warmbd);border-radius:9px;padding:9px 11px;transition:transform .2s,box-shadow .2s}
+.und:hover{transform:translateX(4px);box-shadow:var(--shadow)}
+.und .u-num{width:20px;height:20px;flex:none;border-radius:5px;background:var(--accent);color:var(--on-brand);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.und .u-body{flex:1;min-width:0}
+.und .u-name{font-size:14.5px;font-weight:700;color:var(--accent-ink)}
+.und .u-desc{font-size:12.5px;color:var(--faint);line-height:1.5;margin-top:2px}
+.und input{width:88px;flex:none;border:1px solid var(--warmbd);background:var(--card);color:var(--text);border-radius:6px;padding:5px 7px;font-size:14px;text-align:right;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+.und input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.und .u-unit{font-size:12.5px;color:var(--faint);flex:none}
+.sim-result{margin-top:12px;padding:12px 14px;border-radius:10px;background:linear-gradient(100deg,color-mix(in srgb,var(--accent-soft) 86%,var(--accent) 14%),var(--accent-soft));border:1px solid var(--accent-bd);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sim-result .sr-label{font-size:14px;color:var(--accent-ink);font-weight:600}
+.sim-result .sr-val{font-size:23px;font-weight:700;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.sim-result .sr-delta{font-size:13.5px;color:var(--muted)}
+.tier-tabs{display:flex;gap:6px;margin-bottom:12px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+.field input{width:100%;border:1px solid var(--border);background:var(--row);color:var(--text);border-radius:7px;padding:8px 10px;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 16%,transparent)}
+.calc-lines{border-top:1px dashed var(--border);padding-top:10px;font-size:14px;color:var(--muted);line-height:2}
+.calc-lines .cl{display:flex;justify-content:space-between}
+.calc-lines .cl b{color:var(--text);font-variant-numeric:tabular-nums}
+.calc-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:10px;border-top:2px solid var(--primary);font-size:15px;font-weight:700;color:var(--primary)}
+.calc-total b{font-size:23px;font-variant-numeric:tabular-nums}
+.quote-note{font-size:13px;color:var(--faint);line-height:1.7;margin-top:10px}
+
+/* notes */
+.notes{background:var(--warm);border:1px solid var(--warmbd);border-radius:16px;padding:20px 26px 22px;margin-bottom:18px}
+.notes h2{font-size:18px;margin:0;color:var(--accent-ink);cursor:pointer;display:flex;align-items:center;gap:10px}
+.notes h2 .caret{font-size:14px;transition:transform .3s}
+.notes.open h2 .caret{transform:rotate(90deg)}
+.notes ol{margin:0;padding-left:20px;max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.22,.8,.3,1),margin .3s}
+.notes.open ol{max-height:420px;margin-top:12px}
+.notes li{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:7px}
+.notes li b{color:var(--accent-ink)}
+.footer{display:flex;justify-content:space-between;gap:20px;font-size:13px;color:var(--faint);padding:2px 6px 0;flex-wrap:wrap}
+
+/* tooltip */
+#tooltip{position:fixed;z-index:90;pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .16s,transform .16s;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:11px 13px;font-size:14px;min-width:170px;color:var(--text)}
+#tooltip.show{opacity:1;transform:none}
+#tooltip .tt-h{font-weight:700;color:var(--primary);margin-bottom:7px;font-size:15px}
+#tooltip .tt-r{display:flex;justify-content:space-between;gap:16px;line-height:1.9;color:var(--muted)}
+#tooltip .tt-r b{color:var(--text);font-variant-numeric:tabular-nums}
+
+/* click-to-detail modal */
+.modal-mask{position:fixed;inset:0;z-index:100;background:rgba(10,22,40,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .28s}
+.modal-mask.show{opacity:1;pointer-events:auto}
+.modal{background:var(--card);border:1px solid var(--border);border-bottom:none;border-radius:20px 20px 0 0;width:min(560px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);transform:translateY(100%);transition:transform .38s cubic-bezier(.22,.9,.28,1)}
+.modal-mask.show .modal{transform:none}
+.modal{overscroll-behavior:contain}
+.modal-grip{display:block;flex:none;width:40px;height:4px;border-radius:3px;background:var(--border);margin:10px auto 2px}
+[data-detail]{cursor:pointer}
+.sim-result,.calc-lines,.calc-total,.quote-note,#notesList li{cursor:pointer}
+#notesList li[data-detail]:hover{color:var(--text)}
+.modal-head{flex:none;position:relative;z-index:2;background:var(--card);padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.modal-head h3{margin:0;font-size:19px;color:var(--primary)}
+.modal-head .mh-sub{font-size:13.5px;color:var(--faint);margin-top:5px;line-height:1.6}
+.modal-close{margin-left:auto;border:none;background:var(--soft);color:var(--muted);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:17px;flex:none;transition:background .2s,transform .2s}
+.modal-close:hover{background:var(--grid);transform:rotate(90deg)}
+.modal-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 22px 6px}
+.modal-hero{font-size:30px;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums;line-height:1.2}
+.modal-hero small{font-size:15px;color:var(--muted);font-weight:600;margin-left:6px}
+.modal-cap{font-size:14.5px;color:var(--muted);line-height:1.85;margin:10px 0 14px}
+.modal-rows{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.modal-rows .mr{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 13px;font-size:14.5px;border-bottom:1px solid var(--border)}
+.modal-rows .mr:last-child{border-bottom:none;background:var(--row);font-weight:700}
+.modal-rows .mr span{color:var(--muted);flex:none}
+.modal-rows .mr b{font-variant-numeric:tabular-nums;text-align:right}
+.modal-tag{display:inline-block;background:var(--soft);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:13px;margin:0 6px 12px 0}
+.modal-tip{font-size:13px;color:var(--faint);line-height:1.7;margin-top:14px;border-top:1px dashed var(--border);padding-top:12px}
+.click-hint{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--faint);border:1px dashed var(--border);border-radius:6px;padding:3px 8px;margin-left:6px;vertical-align:middle}
+.click-hint:before{content:"ⓘ";color:var(--accent-ink);font-size:14px}
+.table-scroll{overflow-x:auto}
+.mobile-swipe{display:none;font-size:13px;color:var(--faint);margin:2px 0 8px}
+
+/* responsive */
+@media(max-width:1000px){
+  .page{padding:16px}
+  .split{grid-template-columns:1fr;gap:14px}
+  .two-col{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .hr-cards,.stage-grid{grid-template-columns:1fr}
+  .bar-value{width:160px}
+  .donut-wrap svg{width:190px;height:190px}
+}
+@media(max-width:640px){
+  .page{padding:12px}
+  .toolbar{flex-wrap:wrap;gap:6px;margin:-12px 0 14px;padding:8px 2px}
+  .tb-title{flex:1 1 auto;min-width:0;font-size:14px;order:0;white-space:nowrap}
+  .tb-live{flex:none;order:0;margin-left:auto;font-size:13px;white-space:nowrap}
+  .tb-live b{font-size:15.5px;margin-left:5px}
+  .toolbar:after{content:"";flex:0 0 100%;height:0;order:1}
+  .toolbar>.btn{order:2}
+  .btn{padding:6px 9px;font-size:13px}
+  .hero{padding:22px 18px;border-radius:14px}
+  .hero h1{font-size:24px}
+  .hero .sub{font-size:14.5px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:9px;margin:14px 0 16px}
+  .kpi{padding:12px}
+  .kpi .k-value{font-size:21px}
+  .kpi .k-value small{font-size:13px}
+  .kpi .k-note{font-size:12px}
+  .section{padding:16px 14px;border-radius:12px;margin-bottom:12px}
+  .sec-head h2{font-size:17px}
+  .sec-head .tag{margin-left:0;width:100%;font-size:13px}
+  .sec-desc{font-size:13.5px}
+  .bar-row{gap:7px;padding:7px 2px}
+  .bar-label{width:100px;font-size:13.5px}
+  .bar-value{width:116px;font-size:13px}
+  .bar-value span{min-width:38px;font-size:12px}
+  .bar-track{height:18px}
+  .bar-detail{padding-left:12px;font-size:13px}
+  .donut-wrap svg{width:170px;height:170px}
+  .stack{height:36px}
+  .stack div{font-size:12px}
+  .hr-card .hc-val{font-size:19px}
+  .chart-tools{gap:8px}
+  .legend{gap:10px;font-size:12.5px;width:100%;margin-left:0}
+  #chart{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  #chart svg{min-width:700px}
+  .mobile-swipe{display:block}
+  .stage-grid{gap:8px}
+  .timeline{flex-wrap:wrap;gap:14px 6px}
+  .tl-node{flex:1 1 42%}
+  .tl-node:not(:last-child):after{display:none}
+  .tl-circle{width:46px;height:46px;font-size:18px}
+  .two-col{gap:12px}
+  .und input{width:66px;font-size:13px}
+  .und .u-desc{font-size:12px}
+  .calc-grid{gap:8px}
+  .notes{padding:16px}
+  .notes h2{font-size:16px}
+  .footer{font-size:12px}
+  #roleTable{min-width:520px}
+  th,td{padding:6px 5px}
+  table{font-size:12.5px}
+  #tooltip{display:none!important}
+  .modal-mask{align-items:flex-end;padding:0}
+  .modal{width:100%;max-height:92vh;max-height:92dvh;border-radius:20px 20px 0 0}
+  .modal-grip{width:40px;height:4px;margin:10px auto 2px}
+  .modal-head{padding:12px 16px 14px}
+  .modal-body{padding:12px 16px 10px;-webkit-overflow-scrolling:touch}
+  .modal-close{width:36px;height:36px}
+  .modal-hero{font-size:26px}
+  .modal-rows .mr{font-size:13.5px;padding:8px 10px;flex-wrap:wrap}
+  .modal-rows .mr span{flex:1 1 42%;white-space:normal}
+  .modal-rows .mr b{flex:1 1 48%}
+  .modal-cap{font-size:14px}
+  .click-hint{font-size:12px;margin-left:2px}
+}
+
+/* ---------- v2 组件层 ---------- */
+:where(button,[data-detail],[tabindex]):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+section,.notes{scroll-margin-top:72px}
+
+/* 章节速览：让「去哪一章」始终可见 */
+.chapnav{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 2px 10px;margin:-6px 0 14px;scrollbar-width:none}
+.chapnav::-webkit-scrollbar{display:none}
+.chapnav button{flex:none;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:20px;padding:6px 12px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,border-color .2s,transform .2s}
+.chapnav button b{color:var(--brand);margin-right:5px;font-size:12.5px}
+.chapnav button:hover{transform:translateY(-2px);border-color:var(--brand);color:var(--text)}
+.chapnav button.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.chapnav button.on b{color:inherit;opacity:.8}
+
+/* 分段控件：带滑动指示块 */
+.seg{position:relative;display:inline-flex;background:var(--soft);border:1px solid var(--border);border-radius:10px;padding:3px;gap:0}
+.seg .seg-ink{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/3);background:var(--card);border:1px solid var(--border);border-radius:7px;box-shadow:var(--shadow);transition:transform .32s cubic-bezier(.22,.8,.3,1);pointer-events:none}
+.seg[data-i="1"] .seg-ink{transform:translateX(100%)}
+.seg[data-i="2"] .seg-ink{transform:translateX(200%)}
+.seg button{position:relative;z-index:1;min-width:84px;border:0;background:transparent;color:var(--muted);border-radius:7px;padding:7px 10px;font-size:14px;font-family:inherit;cursor:pointer;transition:color .2s}
+.seg button.on{color:var(--brand);font-weight:700}
+.btn-group{display:none}
+
+/* 排序指示 */
+th.sorted:after{content:" ↓";color:var(--brand);font-weight:700}
+th.sorted.asc:after{content:" ↑"}
+
+/* 定位反馈：滚动到章节后给明确落点 */
+.located{animation:locPulse 2.6s ease both}
+.located .sec-head h2:after,.located.notes h2:after{content:"已定位到此处";display:inline-block;margin-left:10px;font-size:12.5px;font-weight:600;color:var(--on-brand);background:var(--brand);border-radius:5px;padding:2px 7px;vertical-align:middle;animation:locBadge 2.6s ease both}
+@keyframes locPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brand) 55%,transparent)}18%{box-shadow:0 0 0 6px color-mix(in srgb,var(--brand) 30%,transparent)}100%{box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 42%,transparent)}}
+@keyframes locBadge{0%,8%{opacity:0;transform:translateY(4px)}16%,100%{opacity:1;transform:none}}
+.pin{animation:pinPulse 2.4s ease both}
+@keyframes pinPulse{0%{box-shadow:none}25%{box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 35%,transparent)}100%{box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 30%,transparent)}}
+
+/* 手机端月份卡片：替代看不清的缩小 SVG */
+.month-cards{display:none;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;padding:4px 2px 10px;scrollbar-width:none}
+.month-cards::-webkit-scrollbar{display:none}
+.mc{flex:0 0 132px;scroll-snap-align:center;text-align:left;border:1px solid var(--border);background:var(--card);border-radius:12px;padding:11px 12px 12px;cursor:pointer;font-family:inherit;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s}
+.mc:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mc)}
+.mc:hover{transform:translateY(-3px);border-color:var(--mc);box-shadow:var(--shadow)}
+.mc.dim{opacity:.42}
+.mc-h{display:block;font-size:12.5px;color:var(--faint)}
+.mc-v{display:block;font-size:19px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;margin:4px 0 8px;line-height:1.2}
+.mc-v small{font-size:12.5px;color:var(--muted);font-weight:600;margin-left:2px}
+.mc-track{display:block;height:5px;border-radius:3px;background:var(--soft);overflow:hidden}
+.mc-track i{display:block;height:100%;border-radius:3px;background:var(--mc);transition:width .5s}
+.mc-f{display:block;font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* 弹窗 v2：操作条 / 提示卡 / 复制反馈 */
+.modal-foot{flex:none;position:relative;z-index:2;background:var(--card);border-top:1px solid var(--border);padding:10px 22px 22px}
+.modal-actions{display:flex;gap:8px;margin-top:0}
+.modal-actions .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;font-size:14px;line-height:1.3}
+.modal-actions .btn.jump{flex:1.5;flex-direction:column;gap:2px;background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.mj-main{display:block;white-space:nowrap;font-size:14px;font-weight:700;line-height:1.3}
+.mj-sub{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;font-weight:500;opacity:.82;line-height:1.3}
+.modal-actions .btn.jump:hover{box-shadow:var(--shadow-lg)}
+.modal-actions .btn.copy{background:var(--card);color:var(--text)}
+.modal-jumpnote{font-size:13px;color:var(--faint);line-height:1.6;margin-top:9px;text-align:center}
+.modal-callout{display:flex;gap:9px;background:var(--soft);border-left:3px solid var(--brand);border-radius:0 8px 8px 0;padding:10px 12px;font-size:13px;color:var(--muted);line-height:1.75;margin-top:14px}
+.modal-callout:before{content:"ⓘ";color:var(--brand);font-size:15px;flex:none;line-height:1.4}
+.modal-tip{display:none}
+.modal-tag{background:var(--soft);border:1px solid var(--border)}
+.modal-rows .mr:last-child{background:var(--soft)}
+.toast{position:fixed;z-index:130;left:50%;bottom:26px;transform:translate(-50%,14px);background:var(--text);color:var(--card);border-radius:10px;padding:10px 18px;font-size:14px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* 回到顶部：实心品牌色底 + 同色外环，避免浅底融进页面 */
+#toTop{position:fixed;z-index:45;right:18px;bottom:18px;width:40px;height:40px;border-radius:50%;border:1px solid var(--brand);background:var(--brand);color:var(--on-brand);font-size:19px;font-weight:700;line-height:1;cursor:pointer;box-shadow:0 0 0 3px var(--card),0 8px 22px color-mix(in srgb,var(--brand) 42%,transparent);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s,box-shadow .25s}
+#toTop.show{opacity:1;pointer-events:auto}
+#toTop:hover{transform:translateY(-3px);box-shadow:0 0 0 3px var(--card),0 12px 26px color-mix(in srgb,var(--brand) 55%,transparent)}
+#toTop:focus-visible{outline:2px solid var(--text);outline-offset:5px}
+
+@media(max-width:640px){
+  .chapnav{margin:-2px 0 10px;padding-bottom:8px}
+  .seg{width:100%}
+  .seg button{min-width:0;flex:1;font-size:13px;padding:7px 2px}
+  .seg .seg-ink{width:calc((100% - 6px)/3)}
+  #chart{display:none}
+  .mobile-swipe{display:block}
+  .month-cards{display:flex}
+  .modal-foot{padding:10px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 22px color-mix(in srgb,var(--card) 82%,transparent)}
+  .modal-actions{flex-direction:row;gap:6px}
+  .modal-actions .btn,.modal-actions .btn.jump{flex:1;width:auto;font-size:13px;padding:9px 4px}
+  .mj-main{font-size:13px}
+  .modal-jumpnote{display:none}
+  .toast{bottom:84px;font-size:13px}
+  #toTop{bottom:14px;right:14px;width:36px;height:36px}
+  section,.notes{scroll-margin-top:104px}
+}
+
+/* static / reduced motion / print */
+html.static .reveal,html.static .fade-up{opacity:1!important;transform:none!important}
+html.static .kpi{opacity:1!important;transform:none!important}
+html.static *,html.static *:before,html.static *:after{animation:none!important;transition:none!important}
+/* 关掉动画时，定位高亮仍需可见 */
+html.static .located,.located{box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 42%,transparent)}
+html.static .pin,.pin{box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 30%,transparent)}
+/* iOS 微信 WKWebView：内容始终可见，避开 sticky + backdrop-filter 合成层问题 */
+html.ios .reveal,html.ios .fade-up{opacity:1!important;transform:none!important;animation:none!important}
+html.ios .toolbar{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal,.fade-up,.kpi{opacity:1!important;transform:none!important}
+  .located{box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 42%,transparent)!important}
+  .pin{box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 30%,transparent)!important}
+}
+@media print{.toolbar,#tooltip,.modal-mask,#toTop,.toast,.chapnav,.month-cards{display:none!important}.page{width:100%;padding:0}.reveal,.fade-up{opacity:1!important;transform:none!important}.bar-fill,.stack div{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="toolbar">
+  <span class="tb-title">善护 · 预算仪表盘</span>
+  <button class="btn" id="themeBtn">切换深色</button>
+  <button class="btn" id="replayBtn">重播动效</button>
+  <button class="btn" onclick="window.print()">打印 / 存 PDF</button>
+  <span class="tb-live">实时全成本（含模拟）<b id="liveTotal">278.85 万</b></span>
+</div>
+
+<nav class="chapnav" id="chapNav" aria-label="章节速览">
+  <button data-jump="s1" class="on"><b>01</b>成本构成</button>
+  <button data-jump="s2"><b>02</b>人力拆解</button>
+  <button data-jump="s3"><b>03</b>资金节奏</button>
+  <button data-jump="s4"><b>04</b>编制节点</button>
+  <button data-jump="s5"><b>05</b>情景模拟</button>
+  <button data-jump="s6"><b>06</b>报价试算</button>
+  <button data-jump="s7"><b>07</b>测试采购</button>
+  <button data-jump="notesBox"><b>附</b>口径说明</button>
+</nav>
+
+<div class="hero">
+  <div class="eyebrow fade-up" style="animation-delay:.05s">SHANHU · INTERACTIVE BUDGET DASHBOARD</div>
+  <h1 class="fade-up" style="animation-delay:.15s">善护 · 首年全成本预算</h1>
+  <div class="sub fade-up" style="animation-delay:.25s">已确定与未确定成本分类列示　|　人力编制、逐月资金节奏与项目报价档位一图读懂<br>金额口径：人民币元，含社保公积金等五险一金；未确定金额留空，不按零元处理<br><b style="opacity:.95">任意数字、柱形、扇区、表格行可点开明细</b>，弹窗底部可复制或定位到对应数据</div>
+  <div class="period fade-up" style="animation-delay:.35s">预算周期　2026 年 9 月 — 2027 年 8 月</div>
+</div>
+
+<div class="kpis">
+  <div class="kpi fade-up" style="animation-delay:.4s" data-goto="s1" data-detail="kpi:0" title="点击查看指标明细"><div class="k-label">已确定成本合计</div><div class="k-value"><span class="num" data-target="278.85" data-dec="2">0</span><small>万元</small></div><div class="k-note">2,788,523.83 元 · 4 个已明确项目</div></div>
+  <div class="kpi fade-up" style="animation-delay:.48s" data-goto="s2" data-detail="kpi:1" title="点击查看指标明细"><div class="k-label">人力年度总预算</div><div class="k-value"><span class="num" data-target="270.25" data-dec="2">0</span><small>万元</small></div><div class="k-note">全职人工 198.25 万 + 共享运营 72.00 万</div></div>
+  <div class="kpi fade-up" style="animation-delay:.56s" data-goto="s3" data-detail="kpi:2" title="点击查看指标明细"><div class="k-label">月均 / 满编月成本</div><div class="k-value"><span class="num" data-target="22.52" data-dec="2">0</span><small>万元</small></div><div class="k-note">全部到位后 26.42 万元 / 月</div></div>
+  <div class="kpi accent fade-up" style="animation-delay:.64s" data-goto="s5" data-detail="kpi:3" title="点击查看指标明细"><div class="k-label">专职编制扩张</div><div class="k-value">6 → 14<small>人</small></div><div class="k-note">另有 5 项未确定成本，可下方试填</div></div>
+</div>
+
+<section class="section reveal" id="s1">
+  <div class="sec-head"><span class="sec-num">01</span><h2>已确定成本构成</h2><span class="tag">合计 2,788,523.83 元</span></div>
+  <p class="sec-desc"><b>点击任意条目或环形扇区弹出完整明细</b>，悬停可快速预览占比。人力相关（全职人工 + 共享运营）合计占 <b>96.9%</b>，是首年预算的绝对主体。<span class="warn">5 项未确定成本尚未计入</span></p>
+  <div class="split">
+    <div id="bars"></div>
+    <div class="donut-wrap">
+      <svg viewBox="0 0 210 210" id="donut"></svg>
+      <div class="donut-legend">环形图：4 项已确定成本占比<br>悬停扇区可查看金额</div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="s2">
+  <div class="sec-head"><span class="sec-num">02</span><h2>人力与运营成本拆解</h2><span class="tag">合计 2,702,543.83 元</span></div>
+  <p class="sec-desc"><b>点击任意分段、卡片或岗位行弹出完整明细</b>，悬停可聚焦对应分段。市场协同首年不新增固定编制，金额为 0。<span class="click-hint">点数据看详情</span></p>
+  <div class="stack" id="stack"></div>
+  <div class="hr-cards" id="hrCards"></div>
+  <div class="mini-title">第二阶段新增 8 个岗位 · 点击表头排序、点击行看明细 <span style="font-weight:400;font-size:11px;color:var(--faint)">（按实际进场月份计薪）</span></div>
+  <div class="table-scroll"><table id="roleTable"><thead><tr>
+    <th data-sort="name">岗位</th><th data-sort="start">进场</th><th data-sort="monthly">月成本（元）</th><th data-sort="months">计薪月数</th><th data-sort="annual">年度成本（元）</th>
+  </tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="section reveal" id="s3">
+  <div class="sec-head"><span class="sec-num">03</span><h2>12 个月资金节奏与编制扩张</h2><span class="tag">2026.09 — 2027.08</span></div>
+  <p class="sec-desc">切换视图查看月度成本、累计投入或编制人数；<b>点击任意月份弹出该月完整明细</b>，悬停可快速预览；点击阶段卡片或时间轴可高亮对应月份。<span class="click-hint">点数据看详情</span></p>
+  <div class="chart-tools">
+    <div class="seg" id="viewSeg" data-i="0">
+      <span class="seg-ink"></span>
+      <button class="on" data-view="monthly">月度成本</button>
+      <button data-view="cumulative">累计投入</button>
+      <button data-view="headcount">编制人数</button>
+    </div>
+    <button class="btn" id="clearFilter" style="display:none">清除高亮</button>
+    <div class="legend"><span><i style="background:var(--brand)"></i>初步配置</span><span><i style="background:var(--accent)"></i>测试进场</span><span><i style="background:var(--teal)"></i>全编制到位</span><span><i style="background:var(--accent);border-radius:50%"></i>月末编制</span></div>
+  </div>
+  <div class="mobile-swipe">← 左右滑动下方月份卡片查看 12 个月 · 点卡片看明细 →</div>
+  <div id="chart"></div>
+  <div class="month-cards" id="monthCards" aria-label="逐月数据卡片（手机端）"></div>
+  <div class="stage-grid" id="stageGrid"></div>
+</section>
+
+<section class="section reveal" id="s4">
+  <div class="sec-head"><span class="sec-num">04</span><h2>编制扩张关键节点</h2><span class="tag">年初 6 人 → 年末 14 人 · 点击节点联动图表并弹出明细</span></div>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<div class="two-col">
+  <section class="section reveal" id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2>未确定成本 · 情景模拟</h2></div>
+    <p class="sec-desc">输入预估金额（万元），顶部「实时全成本」与下方合计会立即更新；<b>点击任意条目或结果条弹出该项口径与试算汇总</b>。<span class="click-hint">点数据看详情</span></p>
+    <div class="und-list" id="undList"></div>
+    <div class="sim-result" data-detail="sim:0" title="点击查看试算汇总">
+      <span class="sr-label">模拟全成本</span>
+      <span class="sr-val" id="simTotal">278.85 万</span>
+      <span class="sr-delta" id="simDelta">尚未填入任何未确定项</span>
+      <button class="btn" id="simClear" style="margin-left:auto">清空</button>
+    </div>
+  </section>
+
+  <section class="section reveal" id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2>项目交付报价计算器</h2></div>
+    <p class="sec-desc">选择档位并填入数量，实时算出设备与平台费用；<b>点击费用明细行或合计弹出该档位完整报价口径</b>。报价整理日期 2026-10-30，数量待填，暂不计入全成本。<span class="click-hint">点数据看详情</span></p>
+    <div class="tier-tabs" id="tierTabs"></div>
+    <div class="calc-grid">
+      <div class="field"><label>算力盒子（台）</label><input type="number" min="0" step="1" value="1" id="boxQty"></div>
+      <div class="field"><label>智能手环 4G 版（个）</label><input type="number" min="0" step="1" value="10" id="bandQty"></div>
+    </div>
+    <div class="calc-lines" id="calcLines" data-detail="tier:0" title="点击查看当前档位明细"></div>
+    <div class="calc-total" data-detail="tier:0" title="点击查看当前档位明细"><span>本项目合计</span><b id="calcTotal">—</b></div>
+    <div class="quote-note" id="tierNote" data-detail="tier:0" title="点击查看当前档位明细"></div>
+  </section>
+</div>
+
+<section class="section reveal" id="s7" data-detail="purchase:0" title="点击查看测试采购明细" style="padding-top:18px">
+  <div class="mini-title" style="margin-top:0">测试采购已明确金额　¥5,980.00 <span class="click-hint">点数据看详情</span></div>
+  <div style="font-size:12px;color:var(--muted);line-height:1.9">天波算力盒子 1 台 ¥2,680　·　即目算力盒子 1 台 ¥3,000　·　手表 1 只 ¥300　｜　闸机「待定」、其它「待定」不计入。</div>
+</section>
+
+<div class="notes reveal" id="notesBox">
+  <h2 id="notesToggle"><span class="caret">▶</span> 口径说明与数据校验提示（4 项）</h2>
+  <ol id="notesList"></ol>
+</div>
+
+<div class="footer">
+  <span>数据来源：善护成本汇总20261106.xlsx（6 个工作表：全成本汇总 / 人力年度汇总 / 人力成本 / 逐月编制与成本 / 项目交付成本 / 产品测试采购成本）</span>
+  <span>生成日期 2026-11-06 · 单位：人民币元</span>
+</div>
+
+</div>
+<div id="tooltip"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button id="toTop" aria-label="回到顶部" title="回到顶部">↑</button>
+<div class="modal-mask" id="modalMask">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-grip"></div>
+    <div class="modal-head"><div><h3 id="modalTitle"></h3><div class="mh-sub" id="modalSub"></div></div><button class="modal-close" id="modalClose" aria-label="关闭">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var STATIC = location.search.indexOf('static') >= 0;
+if(STATIC) document.documentElement.classList.add('static');
+var $ = function(s,r){return (r||document).querySelector(s)};
+var $$ = function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+var D = {
+  total:2788523.83, hrTotal:2702543.83,
+  confirmed:[
+    {name:'全职人工',v:1982543.83,c:'#24477F',note:'第一阶段及第二阶段全职人员，按到岗月份计薪',detail:'<b>1,982,543.83 元</b> = 第一阶段整体配置 1,366,800 元（113,900 元/月 × 12 个月）+ 第二阶段新增 8 人 615,743.83 元（各岗位按实际进场月份计薪）。不含共享运营。'},
+    {name:'共享运营',v:720000,c:'#2E8B8B',note:'总经理、兼职人员、场地、办公及法务，按 12 个月预留',detail:'<b>720,000 元</b> = 60,000 元/月 × 12 个月。含总经理、兼职人员、场地、办公及法务等共享资源，不计入专职编制。'},
+    {name:'防溺水算法外包',v:80000,c:'#6C63A6',note:'研发与技术投入，合同及结算资料后续归档',detail:'<b>80,000 元</b>，研发与技术投入项下的算法外包费用，为已确定金额；合同及结算资料后续归档。'},
+    {name:'已明确测试采购',v:5980,c:'#E8833A',note:'天波 / 即目算力盒子及手表，待定采购不计入',detail:'<b>5,980 元</b> = 天波算力盒子 2,680 + 即目算力盒子 3,000 + 手表 300。闸机与「其它」标为待定，确认后才纳入汇总。'}
+  ],
+  hrParts:[
+    {name:'第一阶段整体配置',v:1366800,p:.5057457292,c:'#24477F',note:'6 人（技术总监按半全职计），月成本 113,900 元 × 12 个月'},
+    {name:'第二阶段新增人员',v:615743.83,p:.2278386101,c:'#E8833A',note:'新增 8 人，2026.12 / 2027.01 / 2027.03 分批进场'},
+    {name:'共享运营',v:720000,p:.2664156607,c:'#2E8B8B',note:'60,000 元/月 × 12 个月，不计入专职编制'}
+  ],
+  months:['9月','10月','11月','12月','1月','2月','3月','4月','5月','6月','7月','8月'],
+  years:['2026','2026','2026','2026','2027','2027','2027','2027','2027','2027','2027','2027'],
+  hc:[6,6,6,7,9,9,14,14,14,14,14,14],
+  cost:[173900,173900,173900,183376.55,206013.49,206013.49,264240.05,264240.05,264240.05,264240.05,264240.05,264240.05],
+  cum:[173900,347800,521700,705076.55,911090.04,1117103.53,1381343.58,1645583.63,1909823.68,2174063.73,2438303.78,2702543.83],
+  stages:[
+    {name:'初步配置',period:'2026.09 — 2026.11',hc:'6 人',avg:173900,total:521700,c:'#24477F',a:0,b:3},
+    {name:'测试进场',period:'2026.12 — 2027.02',hc:'9 人',avg:198467.843333333,total:595403.53,c:'#E8833A',a:3,b:6},
+    {name:'全编制到位',period:'2027.03 — 2027.08',hc:'14 人',avg:264240.05,total:1585440.30,c:'#2E8B8B',a:6,b:12}
+  ],
+  roles:[
+    {name:'初级测试',start:'2026.12',monthly:9476.55,months:9,annual:85288.95},
+    {name:'工程部经理',start:'2027.01',monthly:11660.39,months:8,annual:93283.12},
+    {name:'工程部专员',start:'2027.01',monthly:10976.55,months:8,annual:87812.40},
+    {name:'运营总监',start:'2027.03',monthly:18000.00,months:6,annual:108000.00},
+    {name:'运营主管',start:'2027.03',monthly:11795.39,months:6,annual:70772.34},
+    {name:'客服主管',start:'2027.03',monthly:10660.39,months:6,annual:63962.34},
+    {name:'行政人事',start:'2027.03',monthly:7640.39,months:6,annual:45842.34},
+    {name:'会计',start:'2027.03',monthly:10130.39,months:6,annual:60782.34}
+  ],
+  undecided:[
+    {name:'市场及商务成本',desc:'市场推广、渠道商务、招投标及业务差旅',src:'待业务预算'},
+    {name:'后续采购测试成本',desc:'后续测试设备、闸机、耗材及增补采购',src:'待采购报价'},
+    {name:'项目交付与运维成本',desc:'项目设备、平台服务、施工改造、运输及售后运维',src:'待补充明细'},
+    {name:'财务、税务及合规成本',desc:'专项审计、财税服务、税费及附加',src:'待财务测算'},
+    {name:'其他及不可预见成本',desc:'后续研发补充、行政合规、保险及不可预见支出',src:'待管理层确定'}
+  ],
+  tiers:[
+    {name:'一档',pos:'民生 / 推广类',cam:'≤ 6 个',box:3000,band:300,plat:1000,note:'基础配置，适合试点推广与民生项目，投入精简、快速落地。'},
+    {name:'二档',pos:'标准型',cam:'6 ~ 12 个',box:3300,band:300,plat:3000,note:'软硬件一体化标准配置，性价比均衡，适配常规中型泳池。'},
+    {name:'三档',pos:'增强型',cam:'> 12 个',box:3500,band:300,plat:5000,note:'多点位接入、平台服务增强，适配多泳池 / 复杂场景。'},
+    {name:'四档',pos:'大型场馆 / 改造',cam:'按实测',box:null,band:null,plat:null,note:'按项目实测、一事一议，工程费用单独核算；需线下报价，暂不参与计算。'}
+  ],
+  notes:[
+    '<b>278.85 万是下限，不是完整全成本。</b>汇总表另有 5 项未确定成本金额全部留空，按口径「不按零元处理」，因此当前合计仅等于已确定成本；待取得报价 / 合同后会自动累加。可用上方「情景模拟」试算。',
+    '<b>技术总监口径冲突。</b>「人力成本」J7 备注写 29,000 元/月，但 H7 实际为 20,000 元/月、年成本 240,000 元；说明行还有「20000万一个元」的笔误。本页以单元格数值 20,000 元/月为准。',
+    '<b>测试进场阶段的人数口径。</b>「人力年度汇总」该阶段期末编制写 8 人，实为「第二阶段新增 8 人」；逐月表显示 2026.12 为 7 人、2027.01—02 为 9 人。本页按逐月表实际人数呈现。',
+    '<b>测试采购待定项计数偏少。</b>「产品测试采购成本」F10 显示「1 项待确定」，公式只统计 F5:F8；第 9 行「其它」也标为待定，实际应为 2 项。已明确金额 5,980 元不受影响。'
+  ]
+};
+
+/* ---------- 语义色板：SVG 用 JS 读取 CSS 变量，主题切换时可重绘 ---------- */
+var P={},RM=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var CHAPTERS={
+  s1:['01','已确定成本构成'],s2:['02','人力与运营成本拆解'],
+  s3:['03','12 个月资金节奏'],s4:['04','编制扩张关键节点'],
+  s5:['05','情景模拟'],s6:['06','报价计算器'],s7:['07','测试采购'],
+  notesBox:['附','口径说明']
+};
+function palette(){
+  var cs=getComputedStyle(document.documentElement);
+  function g(n){return cs.getPropertyValue(n).trim()}
+  return {brand:g('--brand'),brand2:g('--brand-2'),brand3:g('--brand-3'),
+    teal:g('--teal'),accent:g('--accent'),accentInk:g('--accent-ink'),
+    accentBd:g('--accent-bd'),card:g('--card'),soft:g('--soft'),grid:g('--grid'),
+    band1:g('--band1'),band2:g('--band2'),band3:g('--band3')};
+}
+function applyPalette(){
+  P=palette();
+  var c1=[P.brand,P.teal,P.brand2,P.accent];
+  var c2=[P.brand,P.accent,P.teal];
+  D.confirmed.forEach(function(d,i){d.c=c1[i]});
+  D.hrParts.forEach(function(d,i){d.c=c2[i]});
+  D.stages.forEach(function(d,i){d.c=c2[i]});
+}
+
+function fmt(n){return Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function wan(n){return fmt(n/10000)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+/* ---------- tooltip ---------- */
+var tip=$('#tooltip');
+function showTip(html,e){
+  tip.innerHTML=html;tip.classList.add('show');
+  var x=e.clientX+16,y=e.clientY+14;
+  var r=tip.getBoundingClientRect();
+  if(x+r.width>window.innerWidth-10)x=e.clientX-r.width-16;
+  if(y+r.height>window.innerHeight-10)y=e.clientY-r.height-14;
+  tip.style.left=x+'px';tip.style.top=y+'px';
+}
+function hideTip(){tip.classList.remove('show')}
+function tipRow(k,v){return '<div class="tt-r"><span>'+k+'</span><b>'+v+'</b></div>'}
+function bindTip(root){
+  $$('[data-tip]',root).forEach(function(el){
+    if(el.hasAttribute('title'))el.removeAttribute('title'); /* 避免自定义浮层与原生 title 双提示 */
+    el.addEventListener('mouseenter',function(e){showTip(el.getAttribute('data-tip'),e)});
+    el.addEventListener('mousemove',function(e){showTip(el.getAttribute('data-tip'),e)});
+    el.addEventListener('mouseleave',hideTip);
+  });
+}
+
+/* ---------- click-to-detail modal v2 ---------- */
+var mask=$('#modalMask'),currentDetail=null,locTimer=null;
+function stripTags(x){return String(x||'').replace(/<[^>]+>/g,'')}
+function plainText(o){
+  var L=[o.title,stripTags(o.sub)];
+  if(o.hero)L.push(stripTags(o.hero));
+  if(o.cap)L.push(stripTags(o.cap));
+  if(o.tags&&o.tags.length)L.push(o.tags.join(' · '));
+  if(o.rows&&o.rows.length)o.rows.forEach(function(r){L.push(r[0]+'：'+r[1])});
+  if(o.tip)L.push('说明：'+stripTags(o.tip));
+  L.push('数据来源：善护成本汇总20261106.xlsx');
+  return L.filter(Boolean).join('\n');
+}
+function openModal(o){
+  hideTip();currentDetail=o;
+  $('#modalTitle').textContent=o.title||'数据明细';
+  $('#modalSub').innerHTML=o.sub||'';
+  var h='';
+  if(o.hero)h+='<div class="modal-hero">'+o.hero+'</div>';
+  if(o.cap)h+='<div class="modal-cap">'+o.cap+'</div>';
+  if(o.tags&&o.tags.length)h+='<div>'+o.tags.map(function(t){return '<span class="modal-tag">'+esc(t)+'</span>'}).join('')+'</div>';
+  if(o.rows&&o.rows.length)h+='<div class="modal-rows">'+o.rows.map(function(r){return '<div class="mr"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>'}).join('')+'</div>';
+  if(o.tip)h+='<div class="modal-callout">'+o.tip+'</div>';
+  var foot='';
+  if(o.goto){
+    var ch=CHAPTERS[o.goto]||['','本页'];
+    var label=o.focusLabel||('定位到 '+ch[0]+' '+ch[1]);
+    var sep=label.indexOf(' · '),main=sep>0?label.slice(0,sep):label,sub=sep>0?label.slice(sep+3):'';
+    foot+='<div class="modal-actions">'+
+       '<button class="btn jump" id="modalJump" data-target="'+o.goto+'" aria-label="'+label+'">'+
+         '<span class="mj-main">⌖ '+main+'</span>'+
+         (sub?'<span class="mj-sub">'+sub+'</span>':'')+
+       '</button>'+
+       '<button class="btn copy" id="modalCopy">⧉ 复制明细</button></div>';
+    foot+='<div class="modal-jumpnote">定位会关闭弹窗、滚动并高亮对应数据；复制可直接粘贴到文档或聊天</div>';
+  }
+  $('#modalBody').innerHTML=h;
+  $('#modalFoot').innerHTML=foot;
+  $('#modalBody').scrollTop=0;
+  mask.classList.add('show');
+  document.body.style.overflow='hidden';
+  try{$('#modalClose').focus()}catch(err){}
+}
+function closeModal(){mask.classList.remove('show');document.body.style.overflow=''}
+$('#modalClose').addEventListener('click',closeModal);
+mask.addEventListener('click',function(e){
+  if(e.target===mask){closeModal();return}
+  if(!e.target.closest)return;
+  if(e.target.closest('#modalJump')){jumpTo(currentDetail);return}
+  if(e.target.closest('#modalCopy')){copyDetail();return}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.keyCode===27)closeModal()});
+
+/* ---------- 明确落点的章节定位 ---------- */
+function clearLoc(){
+  $$('.located').forEach(function(x){x.classList.remove('located')});
+  $$('.pin').forEach(function(x){x.classList.remove('pin')});
+}
+function locate(id,focus){
+  var el=document.getElementById(id);if(!el)return;
+  clearLoc();clearTimeout(locTimer);
+  if(id==='notesBox')$('#notesBox').classList.add('open');
+  if(focus&&focus.type==='month'){
+    activeMonth=focus.i;activeStage=-1;
+    renderStages();renderChart();renderMonthCards();updateClear();
+  }
+  var off=window.innerWidth<=640?104:72;
+  var dest=Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-off);
+  try{window.scrollTo({top:dest,behavior:(STATIC||RM)?'auto':'smooth'})}
+  catch(err){window.scrollTo(0,dest)}
+  el.classList.add('located');
+  var pin=null;
+  if(focus&&focus.type==='bar')pin=$('#bars .bar-item[data-i="'+focus.i+'"]');
+  else if(focus&&focus.type==='hr')pin=$('#hrCards .hr-card[data-i="'+focus.i+'"]');
+  else if(focus&&focus.type==='role'){
+    pin=$$('#roleTable tbody tr').filter(function(r){return r.children[0]&&r.children[0].textContent.trim()===focus.name})[0]||null;
+  }
+  if(pin)pin.classList.add('pin');
+  if(focus&&focus.type==='month'){
+    var mc=$('#monthCards .mc[data-m="'+focus.i+'"]'),wrap=$('#monthCards');
+    if(mc&&wrap&&window.innerWidth<=640){
+      wrap.scrollLeft=mc.offsetLeft-wrap.offsetLeft-wrap.clientWidth/2+mc.clientWidth/2;
+      mc.classList.add('pin');
+    }
+  }
+  locTimer=setTimeout(clearLoc,2700);
+  $$('#chapNav button').forEach(function(b){b.classList.toggle('on',b.dataset.jump===id)});
+}
+function jumpTo(o){closeModal();locate((o&&o.goto)||'s1',o&&o.focus)}
+$$('#chapNav button').forEach(function(b){
+  b.addEventListener('click',function(){locate(b.dataset.jump)});
+});
+
+/* ---------- 复制明细 ---------- */
+function toast(msg){
+  var t=$('#toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('show')},2200);
+}
+function copyDetail(){
+  var txt=currentDetail?plainText(currentDetail):'';
+  if(!txt){toast('暂无可复制内容');return}
+  var ok=function(){toast('明细已复制，可直接粘贴')};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(ok,function(){fallbackCopy(txt,ok)});
+  }else fallbackCopy(txt,ok);
+}
+function fallbackCopy(txt,ok){
+  var ta=document.createElement('textarea');
+  ta.value=txt;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:0;left:-9999px;opacity:0';
+  document.body.appendChild(ta);ta.select();
+  var done=false;try{done=document.execCommand('copy')}catch(err){}
+  document.body.removeChild(ta);
+  if(done){ok();return}
+  /* 本地 file:// 下剪贴板可能受限：直接选中明细文本，给用户一条确定可用的路径 */
+  try{
+    var body=$('#modalBody'),rg=document.createRange();
+    rg.selectNodeContents(body);
+    var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rg);
+  }catch(err){}
+  toast('已选中明细文本，按 Ctrl / ⌘ + C 复制');
+}
+
+/* ---------- detail builders ---------- */
+function costDetail(i){
+  var d=D.confirmed[i],p=d.v/D.total*100;
+  return {title:d.name,sub:'01 已确定成本构成 · 第 '+(i+1)+' 项 / 共 4 项',
+    hero:wan(d.v)+'<small>万元</small>',cap:d.detail,
+    tags:['成本性质：已确定','占比 '+p.toFixed(1)+'%'],
+    rows:[['金额（元）','¥'+fmt(d.v)],['折合万元',wan(d.v)+' 万'],['占已确定成本',p.toFixed(2)+'%'],['对比人力总预算',(d.v/D.hrTotal*100).toFixed(2)+'%'],['是否计入逐月',i<2?'是（人力 + 共享运营）':'否（单独列示）']],
+    tip:'已确定成本合计 '+fmt(D.total)+' 元（278.85 万），由 4 个已明确项目组成。汇总表另有 5 项未确定成本金额留空，按口径「不按零元处理」，因此该合计是当前预算下限，而非完整全成本。',goto:'s1',focus:{type:'bar',i:i},focusLabel:'定位到 01 成本条 · 第 '+(i+1)+' 项'};
+}
+function kpiDetail(k){
+  if(k===0)return {title:'已确定成本合计',sub:'核心指标 · 1 / 4',hero:'278.85<small>万元</small>',
+    cap:'<b>2,788,523.83 元</b>，即首年预算的<b>下限</b>。由 4 个已明确项目构成，人力相关（全职人工 + 共享运营）合计占 96.9%。',
+    tags:['4 个已明确项目','另有 5 项未确定'],
+    rows:[['全职人工','¥1,982,543.83'],['共享运营','¥720,000.00'],['防溺水算法外包','¥80,000.00'],['已明确测试采购','¥5,980.00'],['合计','¥2,788,523.83']],
+    tip:'未确定金额留空，不按零元处理；可在第 05 区「情景模拟」试填并观察实时全成本变化。',goto:'s1'};
+  if(k===1)return {title:'人力年度总预算',sub:'核心指标 · 2 / 4',hero:'270.25<small>万元</small>',
+    cap:'<b>2,702,543.83 元</b> = 全职人工 1,982,543.83 元 + 共享运营 720,000.00 元。按三段拆解为「第一阶段整体配置 / 第二阶段新增人员 / 共享运营」。',
+    tags:['占已确定成本 96.9%','含五险一金'],
+    rows:[['全职人工','¥1,982,543.83'],['共享运营','¥720,000.00'],['人力合计','¥2,702,543.83'],['占已确定成本','96.91%'],['全年月均','¥225,211.99'],['满编月成本','¥264,240.05']],
+    tip:'月均 = 2,702,543.83 ÷ 12。满编月为 2027.03 起 14 人在岗的月度成本，是全年最高水位。',goto:'s2'};
+  if(k===2)return {title:'月均 / 满编月成本',sub:'核心指标 · 3 / 4',hero:'22.52<small>万元 / 月</small>',
+    cap:'全年 12 个月平均 <b>225,211.99 元/月</b>；全部人员到位后为 <b>264,240.05 元/月</b>，两者相差 39,028.06 元。',
+    tags:['全年 12 个月','逐月口径：人力 + 共享运营'],
+    rows:[['全年年均','¥225,211.99'],['满编月（2027.03 起）','¥264,240.05'],['初步配置月（2026.09—11）','¥173,900.00'],['测试进场月均','¥198,467.84'],['峰值 / 均值差','+¥39,028.06'],['全年合计','¥2,702,543.83']],
+    tip:'逐月节奏受分批进场影响：2026.09—11 为 6 人，12 月 7 人，2027.01 起 9 人，2027.03 起 14 人。',goto:'s3'};
+  return {title:'专职编制扩张',sub:'核心指标 · 4 / 4',hero:'6 → 14<small>人</small>',
+    cap:'首年专职编制由 <b>6 人</b>扩至 <b>14 人</b>，净增 8 人，分三个批次进场；共享运营（总经理、兼职、场地等）不计入专职编制。',
+    tags:['净增 8 人','3 个批次','另有 5 项未确定成本'],
+    rows:[['2026.09 年初','6 人'],['2026.12 初级测试进场','7 人'],['2027.01 工程部到位','9 人'],['2027.03 集中进场','14 人'],['年末净增','+8 人'],['共享运营','不计入编制']],
+    tip:'「人力年度汇总」把测试进场阶段期末编制写成 8 人，实为「第二阶段新增 8 人」；本页按逐月表实际人数呈现。',goto:'s4'};
+}
+function hrDetail(i){
+  var d=D.hrParts[i],extra=[];
+  if(i===0)extra=[['编制','6 人'],['月成本','¥113,900.00'],['计薪月数','12 个月'],['构成','技术总监（半全职）+ 开发 3 人 + 产品 + UI']];
+  if(i===1)extra=[['新增岗位','8 个'],['进场批次','2026.12 / 2027.01 / 2027.03'],['全到位后月成本','¥90,340.05'],['计薪方式','按实际进场月份']];
+  if(i===2)extra=[['月预留','¥60,000.00'],['预留月数','12 个月'],['是否计入专职编制','否'],['涵盖','总经理、兼职、场地、办公、法务']];
+  return {title:d.name,sub:'02 人力与运营成本拆解 · 三段之一',
+    hero:wan(d.v)+'<small>万元</small>',cap:d.note,
+    tags:['占人力总预算 '+(d.p*100).toFixed(1)+'%'],
+    rows:([['金额（元）','¥'+fmt(d.v)],['折合万元',wan(d.v)+' 万'],['占比',(d.p*100).toFixed(2)+'%']]).concat(extra).concat([['人力总预算','¥'+fmt(D.hrTotal)]]),
+    tip:'人力年度总预算 2,702,543.83 元 = 1,366,800 + 615,743.83 + 720,000。此处不含防溺水算法外包 80,000 元与已明确测试采购 5,980 元。',goto:'s2',focus:{type:'hr',i:i},focusLabel:'定位到 02 人力分段 · '+d.name};
+}
+function roleDetail(r){
+  return {title:r.name,sub:'02 第二阶段新增 8 个岗位 · 岗位明细',
+    hero:fmt(r.annual)+'<small>元</small>',
+    cap:'自 <b>'+r.start+'</b> 起进场，按实际在场月份计薪；月成本含社保公积金等五险一金。',
+    tags:['进场 '+r.start,'计薪 '+r.months+' 个月'],
+    rows:[['月成本（元）','¥'+fmt(r.monthly)],['计薪月数',r.months+' 个月'],['年度成本（元）','¥'+fmt(r.annual)],['折合万元',wan(r.annual)+' 万'],['占新增 8 岗合计',(r.annual/615743.83*100).toFixed(2)+'%'],['占人力总预算',(r.annual/D.hrTotal*100).toFixed(2)+'%']],
+    tip:'8 岗年度合计 615,743.83 元（61.57 万）。年度成本 = 月成本 × 计薪月数，按分四舍五入；与第一阶段 1,366,800 元、共享运营 720,000 元共同构成 2,702,543.83 元。',goto:'s2',focus:{type:'role',name:r.name},focusLabel:'定位到 02 岗位表 · '+r.name};
+}
+function roleTotalDetail(){
+  return {title:'第二阶段新增 8 岗 · 合计',sub:'02 人力与运营成本拆解 · 汇总行',
+    hero:'61.57<small>万元</small>',
+    cap:'8 个新增岗位全部到位后月成本合计 <b>90,340.05 元</b>，因分批进场，首年实际年度成本为 <b>615,743.83 元</b>（并非 90,340.05 × 12）。',
+    tags:['2026.12 / 2027.01 / 2027.03 三批进场'],
+    rows:D.roles.map(function(r){return [r.name+'（'+r.start+'）','¥'+fmt(r.annual)]}).concat([['8 岗年度合计','¥615,743.83']]),
+    tip:'点击表头可排序；点击任意岗位行可查看该岗位的单岗明细。',goto:'s2'};
+}
+function monthDetail(i){
+  var prev=i>0?D.cost[i-1]:null,st=i<3?0:(i<6?1:2),s=D.stages[st];
+  var ym=D.years[i]+' 年 '+D.months[i].replace('月',' 月');
+  return {title:ym,sub:'03 逐月资金节奏 · 第 '+(i+1)+' / 12 个月',
+    hero:wan(D.cost[i])+'<small>万元</small>',
+    cap:'该月处于<b>'+s.name+'</b>（'+s.period+'）阶段，月末专职编制 <b>'+D.hc[i]+' 人</b>。',
+    tags:['编制 '+D.hc[i]+' 人',s.name],
+    rows:[['当月总成本','¥'+fmt(D.cost[i])],['折合万元',wan(D.cost[i])+' 万'],['月末编制',D.hc[i]+' 人'],['人均月成本','¥'+fmt(D.cost[i]/D.hc[i])],['累计投入','¥'+fmt(D.cum[i])],['累计折合',wan(D.cum[i])+' 万'],['较上月',prev===null?'—（首月）':((D.cost[i]-prev>=0?'+':'')+fmt(D.cost[i]-prev)+' 元')],['剩余人力预算','¥'+fmt(D.hrTotal-D.cum[i])],['所属阶段',s.name],['阶段月均','¥'+fmt(s.avg)]],
+    tip:'逐月口径仅覆盖「人力 + 共享运营」共 2,702,543.83 元；防溺水算法外包 80,000 元与已明确测试采购 5,980 元未分摊到月份，因此 12 月累计不等于已确定成本合计 2,788,523.83 元。',goto:'s3',focus:{type:'month',i:i},focusLabel:'查看 03 图表 · '+ym};
+}
+function stageDetail(i){
+  var s=D.stages[i],rows=[['覆盖周期',s.period],['覆盖月数',(s.b-s.a)+' 个月'],['期末编制',s.hc]];
+  for(var k=s.a;k<s.b;k++)rows.push([D.years[k]+' '+D.months[k],'¥'+fmt(D.cost[k])+' · '+D.hc[k]+' 人']);
+  rows.push(['月均成本','¥'+fmt(s.avg)]);
+  rows.push(['阶段合计','¥'+fmt(s.total)]);
+  return {title:s.name,sub:'03 资金节奏 · 阶段 '+(i+1)+' / 3',
+    hero:wan(s.total)+'<small>万元</small>',
+    cap:s.period+'，共 '+(s.b-s.a)+' 个月，期末编制 <b>'+s.hc+'</b>。图表已高亮该阶段对应月份；点下方定位按钮可直接查看。',
+    tags:['月均 ¥'+fmt(s.avg),'占全年 '+(s.total/D.hrTotal*100).toFixed(1)+'%'],
+    rows:rows,
+    tip:'三阶段合计 = 521,700.00 + 595,403.53 + 1,585,440.30 = 2,702,543.83 元，与人力年度总预算一致。',goto:'s3',focus:{type:'month',i:s.a},focusLabel:'查看 03 图表 · '+s.name+' 高亮月份'};
+}
+var TL=[
+  {n:6,d:'2026.09',t:'第一阶段整体配置<br>技术总监 + 开发 3 人 + 产品 + UI',m:0,desc:'专职 6 人（技术总监按半全职计），月成本 113,900 元；叠加共享运营 60,000 元/月后，当月总成本 173,900 元。'},
+  {n:7,d:'2026.12',t:'初级测试进场<br>产品进入测试阶段',m:3,desc:'初级测试岗自 2026.12 进场，月成本 9,476.55 元，计薪 9 个月、年度 85,288.95 元。当月编制 7 人，总成本 183,376.55 元。'},
+  {n:9,d:'2027.01',t:'工程部经理 / 专员到位<br>项目交付能力补齐',m:4,desc:'工程部经理 11,660.39 元/月、专员 10,976.55 元/月，各计薪 8 个月，合计 181,095.52 元。当月编制 9 人，总成本 206,013.49 元。'},
+  {n:14,d:'2027.03',t:'运营总监、运营 / 客服主管、<br>行政人事、会计集中进场',m:6,desc:'5 个岗位同月进场（运营总监、运营主管、客服主管、行政人事、会计），各计薪 6 个月，合计 349,359.36 元。当月编制 14 人，总成本达到峰值 264,240.05 元/月。'}
+];
+function tlDetail(o){
+  var i=o.m,s=D.stages[i<3?0:(i<6?1:2)];
+  return {title:o.d+' · 编制 '+o.n+' 人',sub:'04 编制扩张关键节点',
+    hero:o.n+'<small>人（月末编制）</small>',cap:o.desc,
+    tags:['当月总成本 ¥'+fmt(D.cost[i]),'累计投入 ¥'+fmt(D.cum[i])],
+    rows:[['节点日期',o.d],['月末编制',o.n+' 人'],['当月总成本','¥'+fmt(D.cost[i])],['折合万元',wan(D.cost[i])+' 万'],['累计投入','¥'+fmt(D.cum[i])],['所属阶段',s.name],['阶段区间',s.period],['全年末编制','14 人']],
+    tip:'图表已高亮该节点对应月份；点下方定位按钮可直接查看。共享运营 60,000 元/月始终计入成本，但不计入专职编制。',goto:'s3',focus:{type:'month',i:o.m},focusLabel:'查看 03 图表 · '+o.d+' 节点'};
+}
+function undDetail(i){
+  var u=D.undecided[i],v=simVals[i],sim=simVals.reduce(function(a,b){return a+b},0)*10000;
+  return {title:u.name,sub:'05 未确定成本 · 第 '+(i+1)+' / 5 项',
+    hero:v>0?v.toFixed(2)+'<small>万元（试填）</small>':'<span style="font-size:24px;color:var(--faint)">金额待确定</span>',
+    cap:u.desc+'。来源口径：<b>'+u.src+'</b>。',
+    tags:['源表金额：留空','不按零元处理','未计入 278.85 万'],
+    rows:[['当前状态','未取得报价 / 合同'],['本页试填',v>0?(v.toFixed(2)+' 万元'):'未填写'],['折合（元）',v>0?('¥'+fmt(v*10000)):'—'],['模拟全成本','¥'+fmt(D.total+sim+calcTotal)],['是否计入 278.85 万','否']],
+    tip:'源表该行金额留空，按口径「不按零元处理」，因此不进入已确定成本合计。可在右侧输入框试填，顶部「实时全成本」与情景模拟合计会立即更新。',goto:'s5'};
+}
+function simDetail(){
+  var sim=simVals.reduce(function(a,b){return a+b},0)*10000;
+  return {title:'情景模拟 · 实时全成本',sub:'05 未确定成本 · 试算汇总',
+    hero:wan(D.total+sim+calcTotal)+'<small>万元</small>',
+    cap:'已确定成本 <b>'+fmt(D.total)+' 元</b> + 5 项未确定成本试填 <b>'+fmt(sim)+' 元</b> + 报价试算 <b>'+fmt(calcTotal)+' 元</b>。试填值仅用于情景推演，不回写源表。',
+    tags:['已填入 '+simVals.filter(function(x){return x>0}).length+' / 5 项','报价试算：'+(calcTotal>0?'已计入':'未产生')],
+    rows:([['已确定成本','¥'+fmt(D.total)]]).concat(D.undecided.map(function(u,i){return [u.name,simVals[i]>0?('+¥'+fmt(simVals[i]*10000)):'— 未填写']})).concat([['报价计算器试算',calcTotal>0?('+¥'+fmt(calcTotal)):'—'],['模拟全成本','¥'+fmt(D.total+sim+calcTotal)]]),
+    tip:'报价计算器的金额在第 06 区按档位与数量试算，源表注明「数量待填，暂不计入全成本」；本页把它并入实时全成本仅为方便对照。点击「清空」可复位。',goto:'s5'};
+}
+function tierDetail(i){
+  var t=D.tiers[i],box=parseFloat($('#boxQty').value)||0,band=parseFloat($('#bandQty').value)||0;
+  var rows=[['档位定位',t.pos],['建议摄像头数量',t.cam],['算力盒子单价',t.box===null?'一事一议':'¥'+fmt(t.box)],['智能手环单价',t.band===null?'一事一议':'¥'+fmt(t.band)],['平台服务费 / 年',t.plat===null?'一事一议':'¥'+fmt(t.plat)]];
+  if(t.box!==null){
+    rows.push(['当前数量','盒子 '+box+' 台 / 手环 '+band+' 个']);
+    rows.push(['设备小计','¥'+fmt(t.box*box+t.band*band)]);
+    rows.push(['本项目合计','¥'+fmt(t.box*box+t.band*band+t.plat)]);
+  }
+  return {title:'报价档位 · '+t.name,sub:'06 项目交付报价计算器 · 档位明细',
+    hero:t.box===null?'<span style="font-size:24px">需线下报价</span>':fmt(t.box*box+t.band*band+t.plat)+'<small>元</small>',
+    cap:t.note+'　建议摄像头数量：<b>'+t.cam+'</b>。整理日期 2026-10-30，数量待填。',
+    tags:[t.pos,'报价整理 2026-10-30','暂不计入全成本'],
+    rows:rows,
+    tip:'四档「大型场馆 / 改造」按项目实测、一事一议，工程费用单独核算，故不参与计算。点击上方档位按钮可切换，修改盒子 / 手环数量会实时重算。',goto:'s6'};
+}
+function noteDetail(i){
+  return {title:'口径说明 · 第 '+(i+1)+' 项',sub:'数据校验提示（共 4 项）',
+    hero:'<span style="font-size:24px">校验提示</span>',cap:D.notes[i],
+    tags:['来源：善护成本汇总20261106.xlsx'],
+    rows:[['涉及工作表',i===0?'全成本汇总':(i===1?'人力成本':(i===2?'人力年度汇总 / 逐月编制与成本':'产品测试采购成本'))],['本页处理方式',i===0?'按「不按零元处理」列示下限':(i===1?'以单元格数值 20,000 元/月为准':(i===2?'按逐月表实际人数呈现':'不影响已明确金额 5,980 元'))],['是否影响 278.85 万','否']],
+    tip:'以上 4 项为读取 6 个工作表后发现的口径冲突或笔误，本页已在相应位置采用单元格实际数值；建议回源表修正备注与计数公式。',goto:'notesBox'};
+}
+function purchaseDetail(){
+  return {title:'测试采购 · 已明确金额',sub:'产品测试采购成本工作表',
+    hero:'5,980.00<small>元</small>',
+    cap:'已明确金额共 <b>3 项</b>：天波算力盒子 1 台 2,680 元、即目算力盒子 1 台 3,000 元、手表 1 只 300 元。闸机与「其它」标为待定，确认后才纳入汇总。',
+    tags:['已明确 3 项','待定 2 项（源表计为 1 项）'],
+    rows:[['天波算力盒子 × 1','¥2,680.00'],['即目算力盒子 × 1','¥3,000.00'],['手表 × 1','¥300.00'],['已明确合计','¥5,980.00'],['占已确定成本','0.21%'],['待定项','闸机 / 其它（不计入）']],
+    tip:'「产品测试采购成本」F10 显示「1 项待确定」，但公式仅统计 F5:F8；第 9 行「其它」也标为待定，实际应为 2 项。已明确金额 5,980 元不受影响。',goto:'s7'};
+}
+
+/* ---------- count up ---------- */
+function countUp(el,target,dec,suffix){
+  if(STATIC){el.textContent=target.toFixed(dec);return}
+  var start=performance.now(),dur=1100;
+  function step(t){
+    var k=Math.min(1,(t-start)/dur),ease=1-Math.pow(1-k,3);
+    el.textContent=(target*ease).toFixed(dec);
+    if(k<1)requestAnimationFrame(step);else el.textContent=target.toFixed(dec);
+  }
+  requestAnimationFrame(step);
+}
+function animateNumbers(){
+  $$('.num').forEach(function(el){countUp(el,parseFloat(el.dataset.target),parseInt(el.dataset.dec||0))});
+}
+function setLive(v){
+  var el=$('#liveTotal');
+  if(STATIC){el.textContent=wan(v)+' 万';return}
+  var from=parseFloat(el.textContent)||278.85,to=v/10000,start=performance.now(),dur=500;
+  function step(t){
+    var k=Math.min(1,(t-start)/dur),e=1-Math.pow(1-k,3);
+    el.textContent=(from+(to-from)*e).toFixed(2)+' 万';
+    if(k<1)requestAnimationFrame(step);else el.textContent=to.toFixed(2)+' 万';
+  }
+  requestAnimationFrame(step);
+}
+
+/* ---------- 01 bars + donut ---------- */
+function renderBars(){
+  $('#bars').innerHTML=D.confirmed.map(function(d,i){
+    var p=d.v/D.total;
+    var t='<div class="tt-h">'+d.name+'</div>'+tipRow('金额','¥'+fmt(d.v))+tipRow('占比',(p*100).toFixed(1)+'%')+tipRow('口径',d.note.slice(0,14)+'…');
+    return '<div class="bar-item" data-i="'+i+'"><div class="bar-row" data-detail="cost:'+i+'" data-tip="'+esc(t)+'">'+
+      '<div class="bar-label">'+d.name+'</div>'+
+      '<div class="bar-track"><div class="bar-fill" data-w="'+(p*100).toFixed(3)+'" style="background:'+d.c+'"></div></div>'+
+      '<div class="bar-value">'+wan(d.v)+' 万 <span>'+(p*100).toFixed(1)+'%</span></div>'+
+      '<span class="bar-caret" aria-hidden="true">↗</span></div></div>';
+  }).join('');
+  bindTip($('#bars'));
+  // donut
+  var C=2*Math.PI*70,off=0;
+  var segs=D.confirmed.map(function(d,i){
+    var len=d.v/D.total*C;
+    var t='<div class="tt-h">'+d.name+'</div>'+tipRow('金额','¥'+fmt(d.v))+tipRow('占比',(d.v/D.total*100).toFixed(1)+'%');
+    var s='<circle class="seg" cx="105" cy="105" r="70" fill="none" stroke="'+d.c+'" stroke-width="26" '+
+      'stroke-dasharray="'+len.toFixed(2)+' '+(C-len).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'" data-detail="cost:'+i+'" data-tip="'+esc(t)+'"></circle>';
+    off+=len;return s;
+  }).join('');
+  $('#donut').innerHTML='<circle cx="105" cy="105" r="70" fill="none" stroke="'+P.soft+'" stroke-width="26"></circle>'+segs+
+    '<text class="donut-center" x="105" y="98" text-anchor="middle" transform="rotate(90 105 105)">已确定成本</text>'+
+    '<text x="105" y="120" text-anchor="middle" transform="rotate(90 105 105)" style="font-size:19px;font-weight:700;fill:var(--primary)">278.85万</text>';
+  bindTip($('#donut'));
+}
+function fillBars(){$$('.bar-fill').forEach(function(el,i){
+  if(STATIC){el.style.width=el.dataset.w+'%';return}
+  setTimeout(function(){el.style.width=el.dataset.w+'%'},120+i*130);
+})}
+
+/* ---------- 02 hr ---------- */
+function renderHR(){
+  $('#stack').innerHTML=D.hrParts.map(function(d,i){
+    var t='<div class="tt-h">'+d.name+'</div>'+tipRow('金额','¥'+fmt(d.v))+tipRow('占比',(d.p*100).toFixed(1)+'%');
+    return '<div data-i="'+i+'" data-detail="hr:'+i+'" data-w="'+(d.p*100).toFixed(3)+'" style="background:'+d.c+'" data-tip="'+esc(t)+'">'+(d.p*100).toFixed(1)+'%</div>';
+  }).join('');
+  $('#hrCards').innerHTML=D.hrParts.map(function(d,i){
+    return '<div class="hr-card" data-i="'+i+'" data-detail="hr:'+i+'"><div class="hc-top"><span class="dot" style="background:'+d.c+'"></span>'+d.name+'</div>'+
+      '<div class="hc-val">'+wan(d.v)+' 万 <span>'+(d.p*100).toFixed(1)+'%</span></div>'+
+      '<div class="hc-note">'+d.note+'</div></div>';
+  }).join('');
+  $$('#stack div').forEach(function(el){
+    el.addEventListener('mouseenter',function(){highlightHR(+el.dataset.i)});
+    el.addEventListener('mouseleave',function(){highlightHR(-1)});
+  });
+  $$('#hrCards .hr-card').forEach(function(el){
+    el.addEventListener('mouseenter',function(){highlightHR(+el.dataset.i)});
+    el.addEventListener('mouseleave',function(){highlightHR(-1)});
+  });
+  bindTip($('#stack'));
+}
+function fillStack(){$$('#stack div').forEach(function(el,i){
+  if(STATIC){el.style.width=el.dataset.w+'%';return}
+  setTimeout(function(){el.style.width=el.dataset.w+'%'},260+i*160);
+})}
+function highlightHR(i){
+  $$('#stack div').forEach(function(el,j){el.classList.toggle('dim',i>=0&&j!==i)});
+  $$('#hrCards .hr-card').forEach(function(el,j){el.classList.toggle('hot',i>=0&&j===i)});
+}
+var sortKey='annual',sortDir=-1;
+function renderRoles(){
+  var rows=D.roles.slice().sort(function(a,b){
+    var x=a[sortKey],y=b[sortKey];
+    if(typeof x==='number')return (x-y)*sortDir;
+    return String(x).localeCompare(String(y))*sortDir;
+  });
+  var body=rows.map(function(r){return '<tr data-detail="role:0" title="点击查看岗位明细"><td>'+r.name+'</td><td>'+r.start+'</td><td>'+fmt(r.monthly)+'</td><td>'+r.months+'</td><td>'+fmt(r.annual)+'</td></tr>'}).join('');
+  body+='<tr data-detail="roletotal:0" title="点击查看 8 岗汇总"><td>合计（8 人）</td><td>—</td><td>90,340.05</td><td>—</td><td>615,743.83</td></tr>';
+  $('#roleTable tbody').innerHTML=body;
+  $$('#roleTable th').forEach(function(th){
+    th.classList.toggle('sorted',th.dataset.sort===sortKey);
+    th.classList.toggle('asc',th.dataset.sort===sortKey&&sortDir===1);
+  });
+}
+$$('#roleTable th').forEach(function(th){
+  th.addEventListener('click',function(){
+    var k=th.dataset.sort;
+    if(k===sortKey)sortDir*=-1;else{sortKey=k;sortDir=(k==='name'||k==='start')?1:-1}
+    renderRoles();
+  });
+});
+
+/* ---------- 03 chart ---------- */
+var view='monthly',activeStage=-1,activeMonth=-1;
+var W=1090,left=62,right=1040,top=26,bottom=252,plotH=bottom-top,plotW=right-left,slot=plotW/12,bw=46;
+function stageColor(i){return i<3?P.brand:(i<6?P.accent:P.teal)}
+function dimmed(i){
+  if(activeMonth>=0)return i!==activeMonth;
+  if(activeStage>=0){var s=D.stages[activeStage];return i<s.a||i>=s.b}
+  return false;
+}
+function renderChart(){
+  var p=[],i,x,y,h,v;
+  p.push('<svg viewBox="0 0 '+W+' 330" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft YaHei,Arial">');
+  // grid + axes
+  for(var f=0;f<=4;f++){
+    y=bottom-f/4*plotH;
+    p.push('<line class="grid-line" x1="'+left+'" y1="'+y+'" x2="'+right+'" y2="'+y+'"/>');
+    var lab=view==='headcount'?(f*5+'人'):(f*(view==='cumulative'?70:7)+'万');
+    p.push('<text class="axis-txt" x="'+(left-10)+'" y="'+(y+4)+'" text-anchor="end">'+lab+'</text>');
+  }
+  // phase bands
+  [[0,3,P.band1],[3,6,P.band2],[6,12,P.band3]].forEach(function(b){
+    p.push('<rect x="'+(left+b[0]*slot)+'" y="'+top+'" width="'+((b[1]-b[0])*slot)+'" height="'+plotH+'" fill="'+b[2]+'"/>');
+  });
+  // right axis for headcount
+  if(view==='monthly'){
+    [0,5,10,15,20].forEach(function(hc){
+      y=bottom-hc/20*plotH;
+      p.push('<text class="axis-txt" x="'+(right+9)+'" y="'+(y+4)+'" style="fill:'+P.accentInk+'">'+hc+'</text>');
+    });
+    p.push('<text class="axis-txt" x="'+(right+9)+'" y="'+(top-8)+'" style="fill:'+P.accentInk+'">人</text>');
+  }
+  var maxV=view==='monthly'?280000:(view==='cumulative'?2800000:20);
+  var monthTips=[];
+  for(i=0;i<12;i++){
+    x=left+i*slot+slot/2;
+    v=view==='monthly'?D.cost[i]:(view==='cumulative'?D.cum[i]:D.hc[i]);
+    h=v/maxV*plotH;
+    y=bottom-h;
+    var t='<div class="tt-h">'+D.years[i]+' 年 '+D.months[i].replace('月',' 月')+'</div>'+
+      tipRow('当月总成本','¥'+fmt(D.cost[i]))+
+      tipRow('月末编制',D.hc[i]+' 人')+
+      tipRow('累计投入','¥'+fmt(D.cum[i]))+
+      tipRow('阶段',i<3?'初步配置':(i<6?'测试进场':'全编制到位'));
+    var col=stageColor(i);
+    var cl='bar'+(dimmed(i)?' dim':'');
+    var delay=STATIC?'':('animation-delay:'+(i*45)+'ms');
+    if(view==='cumulative'){
+      p.push('<rect class="'+cl+'" x="'+(x-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="4" fill="'+col+'" opacity=".85" style="'+delay+'" data-detail="month:'+i+'" data-tip="'+esc(t)+'"/>');
+    }else{
+      p.push('<rect class="'+cl+'" x="'+(x-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="4" fill="'+col+'" opacity="'+(i<6?'.86':'.92')+'" style="'+delay+'" data-detail="month:'+i+'" data-tip="'+esc(t)+'"/>');
+    }
+    var vlab=view==='monthly'?(D.cost[i]/10000).toFixed(1):(view==='cumulative'?(D.cum[i]/10000).toFixed(0):D.hc[i]+'人');
+    p.push('<text class="val-txt hit" x="'+x+'" y="'+(y-7)+'" text-anchor="middle" data-detail="month:'+i+'">'+vlab+'</text>');
+    p.push('<text class="month-txt hit" x="'+x+'" y="'+(bottom+19)+'" text-anchor="middle" data-detail="month:'+i+'">'+D.months[i]+'</text>');
+    p.push('<text class="axis-txt hit" x="'+x+'" y="'+(bottom+33)+'" text-anchor="middle" data-detail="month:'+i+'">'+D.years[i]+'</text>');
+    monthTips.push(t);
+  }
+  if(view==='monthly'){
+    var pts=D.hc.map(function(hc,k){return (left+k*slot+slot/2)+','+(bottom-hc/20*plotH)}).join(' ');
+    p.push('<polyline class="hc-line" points="'+pts+'"/>');
+    D.hc.forEach(function(hc,k){
+      if([0,3,4,6].indexOf(k)<0)return;
+      x=left+k*slot+slot/2;y=bottom-hc/20*plotH;
+      p.push('<circle cx="'+x+'" cy="'+y+'" r="4" fill="'+P.card+'" stroke="'+P.accent+'" stroke-width="2"/>');
+      p.push('<rect x="'+(x-15)+'" y="'+(y-24)+'" width="30" height="17" rx="4" fill="'+P.card+'" stroke="'+P.accentBd+'"/>');
+      p.push('<text x="'+x+'" y="'+(y-12)+'" text-anchor="middle" style="font-size:10px;font-weight:700;fill:'+P.accentInk+'">'+hc+'人</text>');
+    });
+  }
+  if(view==='cumulative'){
+    var line=D.cum.map(function(c,k){return (k?'L':'M')+(left+k*slot+slot/2)+' '+(bottom-c/maxV*plotH)}).join(' ');
+    p.push('<path class="area" d="'+line+' L '+(left+11*slot+slot/2)+' '+bottom+' L '+(left+slot/2)+' '+bottom+' Z" fill="'+P.band1+'"/>');
+    p.push('<path class="area" d="'+line+'" fill="none" stroke="'+P.brand+'" stroke-width="2.5"/>');
+  }
+  p.push('<line class="grid-line" x1="'+left+'" y1="'+bottom+'" x2="'+right+'" y2="'+bottom+'" style="stroke-width:1.5"/>');
+  // milestone strip
+  var ys=bottom+52;
+  p.push('<text x="'+left+'" y="'+(ys-6)+'" style="font-size:11px;font-weight:700;fill:var(--primary)">累计资金投入里程碑</text>');
+  p.push('<line x1="'+left+'" y1="'+(ys+8)+'" x2="'+right+'" y2="'+(ys+8)+'" class="grid-line" style="stroke-width:2"/>');
+  [[2,'11月末'],[5,'2月末'],[8,'5月末'],[11,'8月末']].forEach(function(m){
+    var idx=m[0];x=left+idx*slot+slot/2;
+    p.push('<circle cx="'+x+'" cy="'+(ys+8)+'" r="3.5" fill="'+P.brand+'"/>');
+    p.push('<text class="val-txt" x="'+x+'" y="'+(ys+27)+'" text-anchor="middle">'+wan(D.cum[idx])+'万</text>');
+    p.push('<text class="axis-txt" x="'+x+'" y="'+(ys+41)+'" text-anchor="middle">'+m[1]+'</text>');
+  });
+  // full-column transparent hit areas (top layer): tap/click anywhere in a month
+  for(i=0;i<12;i++){
+    p.push('<rect class="hit" x="'+(left+i*slot)+'" y="'+top+'" width="'+slot+'" height="'+(bottom+38-top)+'" fill="transparent" data-detail="month:'+i+'" data-tip="'+esc(monthTips[i])+'"/>');
+  }
+  p.push('</svg>');
+  $('#chart').innerHTML=p.join('');
+  bindTip($('#chart'));
+  renderMonthCards();
+}
+/* 手机端：用可横滑的数据卡片替代被压缩到看不清的 SVG */
+function renderMonthCards(){
+  var max=view==='monthly'?280000:(view==='cumulative'?2800000:20);
+  $('#monthCards').innerHTML=D.months.map(function(m,i){
+    var v=view==='monthly'?D.cost[i]:(view==='cumulative'?D.cum[i]:D.hc[i]);
+    var val=view==='headcount'?v:(v/10000).toFixed(1);
+    var unit=view==='headcount'?'人':'万';
+    var st=i<3?'初步配置':(i<6?'测试进场':'全编制到位');
+    return '<button class="mc'+(activeMonth>=0&&activeMonth!==i?' dim':'')+'" data-m="'+i+'" data-detail="month:'+i+'" style="--mc:'+stageColor(i)+'">'+
+      '<span class="mc-h">'+D.years[i]+' · '+m+'</span>'+
+      '<span class="mc-v">'+val+'<small>'+unit+'</small></span>'+
+      '<span class="mc-track"><i style="width:'+Math.max(3,v/max*100).toFixed(1)+'%"></i></span>'+
+      '<span class="mc-f">'+D.hc[i]+' 人 · '+st+'</span></button>';
+  }).join('');
+}
+function renderStages(){
+  $('#stageGrid').innerHTML=D.stages.map(function(s,i){
+    var sel=activeStage===i||(activeMonth>=s.a&&activeMonth<s.b);
+    return '<div class="stage'+(sel?' sel':'')+'" data-i="'+i+'" title="点击查看阶段明细" style="border-left-color:'+s.c+'">'+
+      '<div class="st-name">'+s.name+'</div><div class="st-period">'+s.period+' · 期末 '+s.hc+'</div>'+
+      '<div class="st-line">月均 <b>'+fmt(s.avg)+' 元</b><br>阶段合计 <b>'+wan(s.total)+' 万元</b></div></div>';
+  }).join('');
+  $('#stageGrid').classList.toggle('filtering',activeStage>=0||activeMonth>=0);
+  $$('#stageGrid .stage').forEach(function(el){
+    el.addEventListener('click',function(){
+      var i=+el.dataset.i;
+      activeStage=activeStage===i?-1:i;activeMonth=-1;
+      renderStages();renderChart();updateClear();
+      openModal(stageDetail(i));
+    });
+  });
+}
+function updateClear(){$('#clearFilter').style.display=(activeStage>=0||activeMonth>=0)?'inline-block':'none'}
+$('#clearFilter').addEventListener('click',function(){activeStage=-1;activeMonth=-1;renderStages();renderChart();updateClear()});
+$$('[data-view]').forEach(function(btn,idx){
+  btn.addEventListener('click',function(){
+    view=btn.dataset.view;
+    $$('[data-view]').forEach(function(b){b.classList.remove('active');b.classList.toggle('on',b===btn)});
+    $('#viewSeg').dataset.i=idx;
+    renderChart();
+  });
+});
+
+/* ---------- 04 timeline ---------- */
+function renderTimeline(){
+  $('#timeline').innerHTML=TL.map(function(o,k){
+    return '<div class="tl-node" data-m="'+o.m+'" data-k="'+k+'" title="点击查看节点明细"><div class="tl-circle">'+o.n+'</div>'+
+      '<div class="tl-date">'+o.d+'</div><div class="tl-desc">'+o.t+'</div></div>';
+  }).join('');
+  $$('#timeline .tl-node').forEach(function(el){
+    el.addEventListener('click',function(){
+      var m=+el.dataset.m,o=TL[+el.dataset.k];
+      activeMonth=activeMonth===m?-1:m;activeStage=-1;
+      renderStages();renderChart();updateClear();
+      /* 不再偷偷滚动页面：弹窗内「查看 03 图表 · 节点」按钮才负责定位，落点可见 */
+      openModal(tlDetail(o));
+    });
+  });
+}
+
+/* ---------- 05 scenario ---------- */
+var simVals=[0,0,0,0,0],calcTotal=0;
+function renderUnd(){
+  $('#undList').innerHTML=D.undecided.map(function(u,i){
+    return '<div class="und" data-detail="und:'+i+'" title="点击查看该项口径"><div class="u-num">'+(i+1)+'</div><div class="u-body">'+
+      '<div class="u-name">'+u.name+'</div><div class="u-desc">'+u.desc+' · '+u.src+'</div></div>'+
+      '<input type="number" min="0" step="0.1" placeholder="待填" data-sim="'+i+'"><span class="u-unit">万元</span></div>';
+  }).join('');
+  $$('[data-sim]').forEach(function(inp){
+    inp.addEventListener('input',function(){
+      var v=parseFloat(inp.value);simVals[+inp.dataset.sim]=isNaN(v)||v<0?0:v;updateTotal();
+    });
+  });
+}
+function updateTotal(){
+  var sim=simVals.reduce(function(a,b){return a+b},0)*10000;
+  var grand=D.total+sim+calcTotal;
+  setLive(grand);
+  $('#simTotal').textContent=wan(D.total+sim)+' 万';
+  $('#simDelta').textContent=sim>0
+    ?('已填入 5 项中的 '+simVals.filter(function(x){return x>0}).length+' 项，合计 +'+wan(sim)+' 万'+(calcTotal>0?'；另有报价试算 +'+wan(calcTotal)+' 万':''))
+    :('尚未填入任何未确定项'+(calcTotal>0?'；报价试算 +'+wan(calcTotal)+' 万':''));
+}
+$('#simClear').addEventListener('click',function(){
+  simVals=[0,0,0,0,0];$$('[data-sim]').forEach(function(i){i.value=''});updateTotal();
+});
+
+/* ---------- 06 calculator ---------- */
+var tierIdx=1;
+function renderTiers(){
+  $('#tierTabs').innerHTML=D.tiers.map(function(t,i){
+    return '<button class="btn'+(i===tierIdx?' active':'')+'" data-tier="'+i+'">'+t.name+'</button>';
+  }).join('');
+  $$('[data-tier]').forEach(function(b){
+    b.addEventListener('click',function(){tierIdx=+b.dataset.tier;renderTiers();calc()});
+  });
+}
+function calc(){
+  var t=D.tiers[tierIdx],box=parseFloat($('#boxQty').value)||0,band=parseFloat($('#bandQty').value)||0;
+  if(t.box===null){
+    $('#calcLines').innerHTML='<div class="cl"><span>四档为「一事一议」</span><b>需线下勘察报价</b></div>';
+    $('#calcTotal').textContent='—';$('#tierNote').textContent=t.note;calcTotal=0;updateTotal();return;
+  }
+  var l1=t.box*box,l2=t.band*band,l3=t.plat;
+  var total=l1+l2+l3;calcTotal=total;
+  $('#calcLines').innerHTML=
+    '<div class="cl"><span>算力盒子 ¥'+fmt(t.box)+' × '+box+' 台</span><b>¥'+fmt(l1)+'</b></div>'+
+    '<div class="cl"><span>智能手环 ¥'+fmt(t.band)+' × '+band+' 个</span><b>¥'+fmt(l2)+'</b></div>'+
+    '<div class="cl"><span>平台服务费（'+t.name+'，元/年）</span><b>¥'+fmt(l3)+'</b></div>';
+  $('#calcTotal').textContent='¥'+fmt(total);
+  $('#tierNote').innerHTML=t.name+'（'+t.pos+'）：'+t.note+' 摄像头 '+t.cam+'。<br>本项仅为试算，尚未计入全成本；顶部「实时全成本」已包含该金额。';
+  updateTotal();
+}
+['#boxQty','#bandQty'].forEach(function(s){$(s).addEventListener('input',calc)});
+
+/* ---------- notes / theme / misc ---------- */
+$('#notesList').innerHTML=D.notes.map(function(n,i){return '<li data-detail="note:'+i+'" title="点击查看完整口径说明">'+n+'</li>'}).join('');
+$('#notesToggle').addEventListener('click',function(){$('#notesBox').classList.toggle('open')});
+if(STATIC)$('#notesBox').classList.add('open');
+$('#themeBtn').addEventListener('click',function(){
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  var next=dark?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  this.textContent=next==='dark'?'切换浅色':'切换深色';
+  try{localStorage.setItem('shanhu-theme',next)}catch(err){}
+  /* 重取色板并重绘 SVG，保证图表配色与主题一致 */
+  applyPalette();
+  renderBars();renderHR();renderChart();renderStages();
+  $$('.bar-fill').forEach(function(el){el.style.width=el.dataset.w+'%'});
+  $$('#stack div').forEach(function(el){el.style.width=el.dataset.w+'%'});
+});
+$('#replayBtn').addEventListener('click',function(){location.reload()});
+/* 回到顶部 + 章节速览跟随滚动 */
+$('#toTop').addEventListener('click',function(){
+  try{window.scrollTo({top:0,behavior:(STATIC||RM)?'auto':'smooth'})}catch(err){window.scrollTo(0,0)}
+});
+window.addEventListener('scroll',function(){
+  $('#toTop').classList.toggle('show',window.pageYOffset>560);
+},{passive:true});
+if('IntersectionObserver' in window){
+  var navIO=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting)return;
+      $$('#chapNav button').forEach(function(b){b.classList.toggle('on',b.dataset.jump===e.target.id)});
+    });
+  },{rootMargin:'-18% 0px -72% 0px'});
+  ['s1','s2','s3','s4','s5','s6','s7','notesBox'].forEach(function(id){
+    var el=document.getElementById(id);if(el)navIO.observe(el);
+  });
+}
+/* ---------- global click-to-detail delegation (survives re-renders) ---------- */
+function detailFrom(el){
+  var v=(el.getAttribute('data-detail')||'').split(':'),k=v[0],i=parseInt(v[1],10)||0,o=null;
+  if(k==='cost')o=costDetail(i);
+  else if(k==='hr')o=hrDetail(i);
+  else if(k==='month')o=monthDetail(i);
+  else if(k==='und')o=undDetail(i);
+  else if(k==='sim')o=simDetail();
+  else if(k==='tier')o=tierDetail(tierIdx);
+  else if(k==='note')o=noteDetail(i);
+  else if(k==='purchase')o=purchaseDetail();
+  else if(k==='roletotal')o=roleTotalDetail();
+  else if(k==='kpi'){o=kpiDetail(i);o.goto=['s1','s2','s3','s5'][i]||'s1'}
+  else if(k==='role'){
+    var name=el.children[0]?el.children[0].textContent.trim():'';
+    var r=D.roles.filter(function(x){return x.name===name})[0]||D.roles[i]||null;
+    o=r?roleDetail(r):null;
+  }
+  return o;
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  if(!t||!t.closest)return;
+  if(t.closest('#modalMask'))return;
+  if(t.closest('input'))return;
+  var ctrl=t.closest('button,select,textarea,a');
+  if(ctrl&&!ctrl.hasAttribute('data-detail'))return; /* 清空 / 视图 / 导航按钮不误触发明细 */
+  var el=t.closest('[data-detail]');
+  if(!el)return;
+  var o=detailFrom(el);
+  if(o)openModal(o);
+});
+
+/* ---------- reveal ---------- */
+function setupReveal(){
+  try{clearTimeout(window.__shanhuBoot)}catch(err){}
+  window.__shanhuBoot=0;
+  var all=$$('.reveal'),reduce=false;
+  try{reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches)}catch(err){}
+  if(STATIC||reduce||document.documentElement.classList.contains('ios')){
+    all.forEach(function(e){e.classList.add('in')});return;
+  }
+  if(!('IntersectionObserver' in window)){all.forEach(function(e){e.classList.add('in')});return}
+  var fired=false;
+  var io=new IntersectionObserver(function(es){
+    fired=true;
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+  },{threshold:.08});
+  all.forEach(function(e){io.observe(e)});
+  /* iOS 微信 WKWebView 兜底：观察器 2s 内一次都没回调就直接显示全部 */
+  setTimeout(function(){
+    if(!fired){all.forEach(function(e){e.classList.add('in')});try{io.disconnect()}catch(err){}}
+  },2000);
+}
+
+/* ---------- boot ---------- */
+try{
+  var savedTheme=localStorage.getItem('shanhu-theme');
+  if(savedTheme==='dark'||savedTheme==='light'){
+    document.documentElement.setAttribute('data-theme',savedTheme);
+    $('#themeBtn').textContent=savedTheme==='dark'?'切换浅色':'切换深色';
+  }
+}catch(err){}
+applyPalette();
+renderBars();renderHR();renderRoles();renderChart();renderStages();renderTimeline();renderUnd();renderTiers();calc();
+setupReveal();animateNumbers();
+if(STATIC){fillBars();fillStack()}
+else{
+  setTimeout(fillBars,320);
+  setTimeout(fillStack,420);
+}
+/* deep link: ?detail=cost:0 / month:6 / kpi:1 ... */
+var qd=/[?&]detail=([^&]+)/.exec(location.search);
+if(qd){
+  var probe=document.createElement('div');
+  probe.setAttribute('data-detail',decodeURIComponent(qd[1]));
+  var deep=detailFrom(probe);
+  if(deep)openModal(deep);
+}
+document.documentElement.setAttribute('data-ready','1');
+})();
+</script>
+</body>
+</html>
