@@ -76,35 +76,6 @@ export async function onRequest(context) {
         }
         const token = result.access_token;
         const provider = 'github';
-        // TEMP DIAGNOSTIC: verify the token server-side (never logs the token itself)
-        try {
-            const meRes = await fetch('https://api.github.com/user', {
-                headers: {
-                    Authorization: `token ${token}`,
-                    'user-agent': 'cloudflare-functions-github-oauth-login-demo',
-                    Accept: 'application/json',
-                },
-            });
-            const meScopes = meRes.headers.get('x-oauth-scopes');
-            let meLogin = '';
-            try {
-                const meJson = await meRes.json();
-                meLogin = meJson.login || '';
-            } catch (e) { meLogin = '(unparsable)'; }
-            console.log('DIAG token check: status=' + meRes.status + ' login=' + meLogin + ' scopes=' + meScopes);
-            const repoRes = await fetch('https://api.github.com/repos/Ken-Monster/top10-site', {
-                headers: {
-                    Authorization: `token ${token}`,
-                    'user-agent': 'cloudflare-functions-github-oauth-login-demo',
-                    Accept: 'application/json',
-                },
-            });
-            const repoJson = await repoRes.json().catch(() => ({}));
-            const perms = repoJson.permissions || null;
-            console.log('DIAG repo check: status=' + repoRes.status + ' permissions=' + JSON.stringify(perms));
-        } catch (diagErr) {
-            console.log('DIAG check failed: ' + diagErr.message);
-        }
         const responseBody = renderBody('success', {
             token,
             provider,
