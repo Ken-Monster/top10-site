@@ -2,7 +2,6 @@ function renderBody(status, content) {
     const html = `
     <script>
       var authorizingTimer = null;
-      var tokenSentCount = 0;
       function postAuthorizing() {
         if (window.opener) {
           window.opener.postMessage('authorizing:github', '*');
@@ -12,14 +11,6 @@ function renderBody(status, content) {
         if (window.opener) {
           window.opener.postMessage('authorization:github:success:' + JSON.stringify(${JSON.stringify(content)}), '*');
         }
-        tokenSentCount += 1;
-        var el = document.getElementById('sent');
-        if (!el) {
-          el = document.createElement('h2');
-          el.id = 'sent';
-          document.body.appendChild(el);
-        }
-        el.textContent = 'TOKEN SENT x' + tokenSentCount;
       }
       window.addEventListener("message", function (message) {
         postToken();
@@ -30,7 +21,6 @@ function renderBody(status, content) {
           authorizingTimer = null;
         }
       }, false);
-      document.write('<h1>WAITING</h1><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
       postAuthorizing();
       var authorizingAttempts = 0;
       authorizingTimer = setInterval(function () {
