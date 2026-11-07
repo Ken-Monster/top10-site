@@ -1,15 +1,39 @@
 function renderBody(status, content) {
     const html = `
     <script>
+      var payload = 'authorization:github:${status}:${JSON.stringify(content)}';
+      var authorizingTimer = null;
+      function postAuthorizing() {
+        if (window.opener) {
+          window.opener.postMessage('authorizing:github', '*');
+        }
+      }
+      function postToken() {
+        if (window.opener) {
+          window.opener.postMessage(payload, '*');
+        }
+      }
       const receiveMessage = (message) => {
-        window.opener.postMessage(
-          'authorization:github:${status}:${JSON.stringify(content)}',
-          message.origin
-        );
+        if (authorizingTimer) {
+          clearInterval(authorizingTimer);
+          authorizingTimer = null;
+        }
+        postToken();
+        setTimeout(postToken, 300);
+        setTimeout(postToken, 900);
         window.removeEventListener("message", receiveMessage, false);
       }
       window.addEventListener("message", receiveMessage, false);
-      window.opener.postMessage("authorizing:github", "*");
+      postAuthorizing();
+      var authorizingAttempts = 0;
+      authorizingTimer = setInterval(function () {
+        authorizingAttempts += 1;
+        postAuthorizing();
+        if (authorizingAttempts >= 8) {
+          clearInterval(authorizingTimer);
+          authorizingTimer = null;
+        }
+      }, 400);
     </script>
     `;
     const blob = new Blob([html]);
