@@ -1,0 +1,2 @@
+User-agent: *
+Disallow: /static/img/v3.2.html
