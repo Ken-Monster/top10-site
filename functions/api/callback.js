@@ -1,7 +1,6 @@
 function renderBody(status, content) {
     const html = `
     <script>
-      var payload = 'authorization:github:${status}:${JSON.stringify(content)}';
       var authorizingTimer = null;
       var gotReply = false;
       function postAuthorizing() {
@@ -9,23 +8,14 @@ function renderBody(status, content) {
           window.opener.postMessage('authorizing:github', '*');
         }
       }
-      function postToken() {
-        if (window.opener) {
-          window.opener.postMessage(payload, '*');
-        }
-      }
-      const receiveMessage = (message) => {
+      window.addEventListener("message", function (message) {
         gotReply = true;
         if (authorizingTimer) {
           clearInterval(authorizingTimer);
           authorizingTimer = null;
         }
-        document.write('<h1>HANDSHAKE OK</h1><p>reply: ' + String(message.data) + '</p>');
-        postToken();
-        setTimeout(postToken, 300);
-        window.removeEventListener("message", receiveMessage, false);
-      };
-      window.addEventListener("message", receiveMessage, false);
+        document.write('<h1>HANDSHAKE OK</h1><p>reply: ' + String(message.data) + '</p><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
+      }, false);
       document.write('<h1>WAITING</h1><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
       postAuthorizing();
       var authorizingAttempts = 0;
