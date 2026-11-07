@@ -6,7 +6,9 @@ backend:
   name: github
   repo: Ken-Monster/top10-site
   branch: main
+  site_domain: https://top10.cc.cd
   base_url: https://top10.cc.cd
+  auth_endpoint: /api/auth
 
 locale: "zh_Hans"
 
