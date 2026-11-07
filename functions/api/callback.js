@@ -3,6 +3,7 @@ function renderBody(status, content) {
     <script>
       var payload = 'authorization:github:${status}:${JSON.stringify(content)}';
       var authorizingTimer = null;
+      var gotReply = false;
       function postAuthorizing() {
         if (window.opener) {
           window.opener.postMessage('authorizing:github', '*');
@@ -14,16 +15,18 @@ function renderBody(status, content) {
         }
       }
       const receiveMessage = (message) => {
+        gotReply = true;
         if (authorizingTimer) {
           clearInterval(authorizingTimer);
           authorizingTimer = null;
         }
+        document.write('<h1>HANDSHAKE OK</h1><p>reply: ' + String(message.data) + '</p>');
         postToken();
         setTimeout(postToken, 300);
-        setTimeout(postToken, 900);
         window.removeEventListener("message", receiveMessage, false);
-      }
+      };
       window.addEventListener("message", receiveMessage, false);
+      document.write('<h1>WAITING</h1><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
       postAuthorizing();
       var authorizingAttempts = 0;
       authorizingTimer = setInterval(function () {
@@ -34,6 +37,11 @@ function renderBody(status, content) {
           authorizingTimer = null;
         }
       }, 400);
+      setTimeout(function () {
+        if (!gotReply) {
+          document.write('<h1>NO REPLY</h1><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
+        }
+      }, 5000);
     </script>
     `;
     const blob = new Blob([html]);
