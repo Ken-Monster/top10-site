@@ -2,19 +2,33 @@ function renderBody(status, content) {
     const html = `
     <script>
       var authorizingTimer = null;
-      var gotReply = false;
+      var tokenSentCount = 0;
       function postAuthorizing() {
         if (window.opener) {
           window.opener.postMessage('authorizing:github', '*');
         }
       }
+      function postToken() {
+        if (window.opener) {
+          window.opener.postMessage('authorization:github:success:' + JSON.stringify(${JSON.stringify(content)}), '*');
+        }
+        tokenSentCount += 1;
+        var el = document.getElementById('sent');
+        if (!el) {
+          el = document.createElement('h2');
+          el.id = 'sent';
+          document.body.appendChild(el);
+        }
+        el.textContent = 'TOKEN SENT x' + tokenSentCount;
+      }
       window.addEventListener("message", function (message) {
-        gotReply = true;
+        postToken();
+        setTimeout(postToken, 300);
+        setTimeout(postToken, 900);
         if (authorizingTimer) {
           clearInterval(authorizingTimer);
           authorizingTimer = null;
         }
-        document.write('<h1>HANDSHAKE OK</h1><p>reply: ' + String(message.data) + '</p><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
       }, false);
       document.write('<h1>WAITING</h1><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
       postAuthorizing();
@@ -27,11 +41,6 @@ function renderBody(status, content) {
           authorizingTimer = null;
         }
       }, 400);
-      setTimeout(function () {
-        if (!gotReply) {
-          document.write('<h1>NO REPLY</h1><p>opener: ' + (window.opener ? 'present' : 'NULL') + '</p>');
-        }
-      }, 5000);
     </script>
     `;
     const blob = new Blob([html]);
